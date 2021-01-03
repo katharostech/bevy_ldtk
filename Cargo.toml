@@ -1,0 +1,18 @@
+[package]
+name = "bevy_ldtk"
+version = "0.0.1"
+authors = ["Zicklag <zicklag@katharostech.com>"]
+edition = "2018"
+license-file = "LICENSE.md"
+description = "A Bevy plugin for reading the LDtk 2D tile map format."
+repository = "https://github.com/katharostech/LDtk-rs"
+documentation = "https://docs.rs/ldtk"
+readme = "README.md"
+keywords = ["gamedev", "map-editor", "tile", "bevy", "2D"]
+categories = [
+    "games",
+    "game-development",
+    "parser-implementations"
+]
+
+[dependencies]
