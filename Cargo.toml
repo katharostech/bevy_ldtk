@@ -1,6 +1,6 @@
 [package]
 name = "bevy_ldtk"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 authors = ["Zicklag <zicklag@katharostech.com>"]
 edition = "2018"
 license-file = "LICENSE.md"
@@ -17,6 +17,6 @@ categories = [
 
 [dependencies]
 bevy = "0.4.0"
-ldtk = "0.2.0-alpha1"
+ldtk = { version = "0.2.0-alpha3" }
 anyhow = "1.0.37"
 serde_json = "1.0.61"

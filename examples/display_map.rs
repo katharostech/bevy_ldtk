@@ -12,9 +12,12 @@ fn main() {
         .run();
 }
 
-fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
+fn setup(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     commands
-        .spawn(Camera2dBundle::default())
         .spawn(LdtkMapBundle {
             map: asset_server.load(PathBuf::from(
                 &std::env::args()
@@ -22,13 +25,24 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
                     .next()
                     .unwrap_or("map1.ldtk".into()),
             )),
-            scale: MapScale(4.0),
+            scale: MapScale(0.),
             transform: Transform::default(),
             config: LdtkMapConfig {
                 set_clear_color: true,
             },
-        });
+        })
+        // .spawn(SpriteBundle {
+        //     material: materials.add(
+        //         asset_server
+        //             .load("map1/png/0000-00-IntGrid_layer.png")
+        //             .into(),
+        //     ),
+        //     ..Default::default()
+        // })
+        .spawn(Camera2dBundle::default());
 }
+
+const SPEED: f32 = 1.0;
 
 fn camera_movement(
     time: Res<Time>,
@@ -40,29 +54,29 @@ fn camera_movement(
         let scale = transform.scale.x;
 
         if keyboard_input.pressed(KeyCode::A) {
-            direction -= Vec3::new(1.0, 0.0, 0.0);
+            direction += Vec3::new(-SPEED, 0.0, 0.0);
         }
 
         if keyboard_input.pressed(KeyCode::D) {
-            direction += Vec3::new(1.0, 0.0, 0.0);
+            direction += Vec3::new(SPEED, 0.0, 0.0);
         }
 
         if keyboard_input.pressed(KeyCode::W) {
-            direction += Vec3::new(0.0, 1.0, 0.0);
+            direction += Vec3::new(0.0, SPEED, 0.0);
         }
 
         if keyboard_input.pressed(KeyCode::S) {
-            direction -= Vec3::new(0.0, 1.0, 0.0);
+            direction += Vec3::new(0.0, -SPEED, 0.0);
         }
 
-        if keyboard_input.pressed(KeyCode::Z) {
-            let scale = scale + 0.1;
-            transform.scale = Vec3::new(scale, scale, scale);
+        if keyboard_input.pressed(KeyCode::Q) {
+            let scale = scale + 0.005;
+            transform.scale = Vec3::new(scale, scale, 1.);
         }
 
-        if keyboard_input.pressed(KeyCode::X) && scale > 1.1 {
-            let scale = scale - 0.1;
-            transform.scale = Vec3::new(scale, scale, scale);
+        if keyboard_input.pressed(KeyCode::E) {
+            let scale = scale - 0.005;
+            transform.scale = Vec3::new(scale, scale, 1.);
         }
 
         transform.translation += time.delta_seconds() * direction * 1000.;

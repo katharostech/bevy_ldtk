@@ -1,17 +1,21 @@
 # Bevy LDtk
 
-A plugin to bevy for loading [LDtk] 2D tile maps.
+A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but hopes to be usable soon.
 
 [ldtk]: https://github.com/deepnight/ldtk
 
 ![screenshot](./doc/screenshot.png)
 
+## Features
+
+- An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
+
 ## Caveats
 
 The plugin is in very early development and there are some large caveats that will be fixed in later releases:
 
-- Implementation is inefficient and causes rendering artifacts showing borders between tiles
 - Only the first level of the map is loaded
+- Many features are not properly handled yet, such as advanced auto-tiling and transparency, etc.
 
 ## License
 
