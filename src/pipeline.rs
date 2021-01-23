@@ -2,6 +2,8 @@ use bevy::{
     core::Byteable,
     prelude::*,
     reflect::TypeUuid,
+    render::pipeline::BlendFactor,
+    render::pipeline::BlendOperation,
     render::{
         pipeline::{
             BlendDescriptor, ColorStateDescriptor, ColorWrite, CullMode, FrontFace,
@@ -12,7 +14,7 @@ use bevy::{
         shader::{ShaderStage, ShaderStages},
         texture::TextureFormat,
     },
-};
+render::pipeline::DepthStencilStateDescriptor, render::pipeline::CompareFunction, render::pipeline::StencilStateFaceDescriptor, render::pipeline::StencilStateDescriptor};
 
 pub const LDTK_TILEMAP_PIPELINE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(PipelineDescriptor::TYPE_UUID, 10348532193540037685);
@@ -29,21 +31,29 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
         }),
         // TODO: This was taken from the Bevy Sprite rendering settings, but for some reason
         // the tiles dissapear when uncommenting it
-        // depth_stencil_state: Some(DepthStencilStateDescriptor {
-        //     format: TextureFormat::Depth32Float,
-        //     depth_write_enabled: true,
-        //     depth_compare: CompareFunction::LessEqual,
-        //     stencil: StencilStateDescriptor {
-        //         front: StencilStateFaceDescriptor::IGNORE,
-        //         back: StencilStateFaceDescriptor::IGNORE,
-        //         read_mask: 0,
-        //         write_mask: 0,
-        //     },
-        // }),
+        depth_stencil_state: Some(DepthStencilStateDescriptor {
+            format: TextureFormat::Depth32Float,
+            depth_write_enabled: true,
+            depth_compare: CompareFunction::LessEqual,
+            stencil: StencilStateDescriptor {
+                front: StencilStateFaceDescriptor::IGNORE,
+                back: StencilStateFaceDescriptor::IGNORE,
+                read_mask: 0,
+                write_mask: 0,
+            },
+        }),
         color_states: vec![ColorStateDescriptor {
             format: TextureFormat::default(),
-            color_blend: BlendDescriptor::REPLACE,
-            alpha_blend: BlendDescriptor::REPLACE,
+            color_blend: BlendDescriptor {
+                src_factor: BlendFactor::SrcAlpha,
+                dst_factor: BlendFactor::OneMinusSrcAlpha,
+                operation: BlendOperation::Add,
+            },
+            alpha_blend: BlendDescriptor {
+                src_factor: BlendFactor::One,
+                dst_factor: BlendFactor::One,
+                operation: BlendOperation::Add,
+            },
             write_mask: ColorWrite::ALL,
         }],
         ..PipelineDescriptor::default_config(ShaderStages {
@@ -77,6 +87,7 @@ pub struct LdtkTilemapMaterial {
 pub struct LdtkTilemapMapInfo {
     pub width: u32,
     pub height: u32,
+    pub layer_index: u32,
 }
 unsafe impl Byteable for LdtkTilemapMapInfo {}
 

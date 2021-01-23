@@ -30,7 +30,6 @@ fn process_ldtk_maps(
     >,
     map_assets: Res<Assets<LdtkMap>>,
     mut textures: ResMut<Assets<Texture>>,
-    mut mesh_assets: ResMut<Assets<Mesh>>,
 ) {
     // Load map atlases
     for (ent, map_handle, scale, trans, config) in new_maps.iter_mut() {
@@ -44,7 +43,21 @@ fn process_ldtk_maps(
 
         // Get the map asset, if available
         if let Some(map) = map_assets.get(map_handle) {
+            let project = &map.project;
             let grid_size = map.project.default_grid_size;
+
+            macro_rules! get_def {
+                ($attr:ident, $uid:expr) => {
+                    project
+                        .defs
+                        .iter()
+                        .map(|x| &x.$attr)
+                        .flatten()
+                        .filter(|x| x.uid == $uid)
+                        .next()
+                        .expect("Could not find definition in map file")
+                };
+            }
 
             // Set the background color
             if config.set_clear_color {
@@ -63,16 +76,17 @@ fn process_ldtk_maps(
 
             // Load tilesets
             for (tileset_name, texture_handle) in &map.tile_sets {
+                // Update the sampler mode for the texture to avoid bleeding edges
                 if let Some(texture) = textures.get_mut(texture_handle) {
                     texture.sampler = SamplerDescriptor {
                         min_filter: FilterMode::Nearest,
+                        mag_filter: FilterMode::Nearest,
                         ..Default::default()
                     };
                 }
 
                 // Get the tileset info
-                let tileset_info = map
-                    .project
+                let tileset_info = project
                     .defs
                     .iter()
                     .map(|x| &x.tilesets)
@@ -98,20 +112,26 @@ fn process_ldtk_maps(
             // Spawn layers for the first level
             let level = map.project.levels.get(0).unwrap();
 
-            for (z, layer) in level.layer_instances.as_ref().unwrap().iter().enumerate() {
+            for (z, layer_instance) in level.layer_instances.as_ref().unwrap().iter().enumerate() {
+                let layer_def = get_def!(layers, layer_instance.layer_def_uid);
+
                 // FIXME: actually grab the right tilesheet
-                let (tileset_info, tileset_texture) =
-                    tilesets.values().next().expect("Missing tileset").clone();
+                let (tileset_info, tileset_texture) = if let Some(uid) =
+                    layer_def.tileset_def_uid.or(layer_def.auto_tileset_def_uid)
+                {
+                    tilesets.get(&uid).expect("Missing tileset").clone()
+                } else {
+                    continue;
+                };
 
                 let layer_width_tiles = (level.px_wid / grid_size) as u32;
                 let layer_height_tiles = (level.px_hei / grid_size) as u32;
 
-                let tiles = &layer.auto_layer_tiles;
+                let tiles = &layer_instance.auto_layer_tiles;
 
                 // Create a virtual 2D map to stick the tiles in
                 let mut tiles_map = HashMap::<(u32, u32), LdtkTilemapTileInfo>::default();
                 let tileset_width_tiles = (tileset_info.px_wid / grid_size) as u32;
-                let tileset_height_tiles = (tileset_info.px_hei / grid_size) as u32;
 
                 for tile in tiles {
                     let tileset_tile_x = (tile.src[0] / grid_size) as u32;
@@ -131,11 +151,11 @@ fn process_ldtk_maps(
                 // Go through all the tiles and create a flat vector from it
                 let mut tiles = Vec::new();
                 for y in 0..layer_height_tiles {
-                    for x in 0..layer_width_tiles {
+                    for x in (0..layer_width_tiles).rev() {
                         tiles.push(tiles_map.get(&(x, y)).map(Clone::clone).unwrap_or(
                             LdtkTilemapTileInfo {
                                 flip_bits: 0,
-                                tile_index: 0,
+                                tile_index: u32::MAX,
                             },
                         ))
                     }
@@ -144,6 +164,7 @@ fn process_ldtk_maps(
                 let map_info = LdtkTilemapMapInfo {
                     height: (level.px_hei / map.project.default_grid_size) as u32,
                     width: (level.px_wid / map.project.default_grid_size) as u32,
+                    layer_index: z as u32,
                 };
 
                 let tileset_info = LdtkTilemapTilesetInfo {
@@ -153,19 +174,25 @@ fn process_ldtk_maps(
 
                 // Spawn the tilemap
                 commands
-                    .spawn(SpriteBundle {
-                        render_pipelines: RenderPipelines::from_pipelines(vec![
-                            RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
-                        ]),
-                        ..Default::default()
-                    })
-                    .with(LdtkTilemapMaterial {
-                        map_info,
-                        scale: scale.0,
-                        texture: tileset_texture.clone(),
-                        tiles,
-                        tileset_info,
-                    });
+                    .insert(
+                        ent,
+                        SpriteBundle {
+                            render_pipelines: RenderPipelines::from_pipelines(vec![
+                                RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
+                            ]),
+                            ..Default::default()
+                        },
+                    )
+                    .insert_one(
+                        ent,
+                        LdtkTilemapMaterial {
+                            map_info,
+                            scale: scale.0,
+                            texture: tileset_texture.clone(),
+                            tiles,
+                            tileset_info,
+                        },
+                    );
             }
 
             // Mark map as having been loaded

@@ -9,40 +9,54 @@ fn main() {
         .add_plugin(LdtkPlugin)
         .add_startup_system(setup.system())
         .add_system(camera_movement.system())
+        .add_system(map_movement.system())
         .run();
 }
 
-fn setup(
-    commands: &mut Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(LdtkMapBundle {
             map: asset_server.load(PathBuf::from(
-                &std::env::args()
-                    .skip(1)
-                    .next()
-                    .unwrap_or("map1.ldtk".into()),
+                &std::env::args().nth(1).unwrap_or("Map.ldtk".into()),
             )),
-            scale: MapScale(0.),
-            transform: Transform::default(),
+            scale: MapScale(20.),
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
             config: LdtkMapConfig {
                 set_clear_color: true,
             },
         })
-        // .spawn(SpriteBundle {
-        //     material: materials.add(
-        //         asset_server
-        //             .load("map1/png/0000-00-IntGrid_layer.png")
-        //             .into(),
-        //     ),
-        //     ..Default::default()
+        // .spawn(LdtkMapBundle {
+        //     map: asset_server.load(PathBuf::from(
+        //         &std::env::args().nth(2).unwrap_or("Map.ldtk".into()),
+        //     )),
+        //     scale: MapScale(20.),
+        //     transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
+        //     config: LdtkMapConfig {
+        //         set_clear_color: true,
+        //     },
         // })
+        // .with(Test)
         .spawn(Camera2dBundle::default());
 }
 
+struct Test;
+
 const SPEED: f32 = 1.0;
+
+fn map_movement(
+    time: Res<Time>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<(&Test, &mut Transform)>,
+) {
+    for (_, mut transform) in query.iter_mut() {
+        if keyboard_input.pressed(KeyCode::J) {
+            transform.translation.z += 0.1;
+        }
+        if keyboard_input.pressed(KeyCode::K) {
+            transform.translation.z += -0.1;
+        }
+    }
+}
 
 fn camera_movement(
     time: Res<Time>,
