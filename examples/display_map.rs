@@ -9,7 +9,6 @@ fn main() {
         .add_plugin(LdtkPlugin)
         .add_startup_system(setup.system())
         .add_system(camera_movement.system())
-        .add_system(map_movement.system())
         .run();
 }
 
@@ -19,44 +18,18 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
             map: asset_server.load(PathBuf::from(
                 &std::env::args().nth(1).unwrap_or("Map.ldtk".into()),
             )),
-            scale: MapScale(20.),
+            scale: MapScale(3.),
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
             config: LdtkMapConfig {
                 set_clear_color: true,
             },
         })
-        // .spawn(LdtkMapBundle {
-        //     map: asset_server.load(PathBuf::from(
-        //         &std::env::args().nth(2).unwrap_or("Map.ldtk".into()),
-        //     )),
-        //     scale: MapScale(20.),
-        //     transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
-        //     config: LdtkMapConfig {
-        //         set_clear_color: true,
-        //     },
-        // })
-        // .with(Test)
         .spawn(Camera2dBundle::default());
 }
 
 struct Test;
 
 const SPEED: f32 = 1.0;
-
-fn map_movement(
-    time: Res<Time>,
-    keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&Test, &mut Transform)>,
-) {
-    for (_, mut transform) in query.iter_mut() {
-        if keyboard_input.pressed(KeyCode::J) {
-            transform.translation.z += 0.1;
-        }
-        if keyboard_input.pressed(KeyCode::K) {
-            transform.translation.z += -0.1;
-        }
-    }
-}
 
 fn camera_movement(
     time: Res<Time>,

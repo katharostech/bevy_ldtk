@@ -46,19 +46,6 @@ fn process_ldtk_maps(
             let project = &map.project;
             let grid_size = map.project.default_grid_size;
 
-            macro_rules! get_def {
-                ($attr:ident, $uid:expr) => {
-                    project
-                        .defs
-                        .iter()
-                        .map(|x| &x.$attr)
-                        .flatten()
-                        .filter(|x| x.uid == $uid)
-                        .next()
-                        .expect("Could not find definition in map file")
-                };
-            }
-
             // Set the background color
             if config.set_clear_color {
                 *clear_color = ClearColor(
@@ -112,22 +99,24 @@ fn process_ldtk_maps(
             // Spawn layers for the first level
             let level = map.project.levels.get(0).unwrap();
 
-            for (z, layer_instance) in level.layer_instances.as_ref().unwrap().iter().enumerate() {
-                let layer_def = get_def!(layers, layer_instance.layer_def_uid);
+            for (z, layer) in level
+                .layer_instances
+                .as_ref()
+                .unwrap()
+                .iter()
+                .rev() // Reverse the layers so that they stack in the right Z order
+                .enumerate()
+            {
+                // let layer_def = get_def!(layers, layer_instance.layer_def_uid);
 
                 // FIXME: actually grab the right tilesheet
-                let (tileset_info, tileset_texture) = if let Some(uid) =
-                    layer_def.tileset_def_uid.or(layer_def.auto_tileset_def_uid)
-                {
+                let (tileset_info, tileset_texture) = if let Some(uid) = layer.__tileset_def_uid {
                     tilesets.get(&uid).expect("Missing tileset").clone()
                 } else {
                     continue;
                 };
 
-                let layer_width_tiles = (level.px_wid / grid_size) as u32;
-                let layer_height_tiles = (level.px_hei / grid_size) as u32;
-
-                let tiles = &layer_instance.auto_layer_tiles;
+                let tiles = &layer.auto_layer_tiles;
 
                 // Create a virtual 2D map to stick the tiles in
                 let mut tiles_map = HashMap::<(u32, u32), LdtkTilemapTileInfo>::default();
@@ -150,8 +139,8 @@ fn process_ldtk_maps(
                 }
                 // Go through all the tiles and create a flat vector from it
                 let mut tiles = Vec::new();
-                for y in 0..layer_height_tiles {
-                    for x in (0..layer_width_tiles).rev() {
+                for y in 0..layer.__c_hei as u32 {
+                    for x in (0..layer.__c_wid as u32).rev() {
                         tiles.push(tiles_map.get(&(x, y)).map(Clone::clone).unwrap_or(
                             LdtkTilemapTileInfo {
                                 flip_bits: 0,
@@ -170,29 +159,25 @@ fn process_ldtk_maps(
                 let tileset_info = LdtkTilemapTilesetInfo {
                     height: (tileset_info.px_hei / map.project.default_grid_size) as u32,
                     width: (tileset_info.px_wid / map.project.default_grid_size) as u32,
+                    grid_size: map.project.default_grid_size as u32,
                 };
 
-                // Spawn the tilemap
+                // Add layer
                 commands
-                    .insert(
-                        ent,
-                        SpriteBundle {
-                            render_pipelines: RenderPipelines::from_pipelines(vec![
-                                RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
-                            ]),
-                            ..Default::default()
-                        },
-                    )
-                    .insert_one(
-                        ent,
-                        LdtkTilemapMaterial {
-                            map_info,
-                            scale: scale.0,
-                            texture: tileset_texture.clone(),
-                            tiles,
-                            tileset_info,
-                        },
-                    );
+                    .spawn(SpriteBundle {
+                        render_pipelines: RenderPipelines::from_pipelines(vec![
+                            RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
+                        ]),
+                        ..Default::default()
+                    })
+                    .with(LdtkTilemapMaterial {
+                        map_info,
+                        scale: scale.0,
+                        texture: tileset_texture.clone(),
+                        tiles,
+                        tileset_info,
+                    })
+                    .with(Parent(ent));
             }
 
             // Mark map as having been loaded

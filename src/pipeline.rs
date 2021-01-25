@@ -4,6 +4,10 @@ use bevy::{
     reflect::TypeUuid,
     render::pipeline::BlendFactor,
     render::pipeline::BlendOperation,
+    render::pipeline::CompareFunction,
+    render::pipeline::DepthStencilStateDescriptor,
+    render::pipeline::StencilStateDescriptor,
+    render::pipeline::StencilStateFaceDescriptor,
     render::{
         pipeline::{
             BlendDescriptor, ColorStateDescriptor, ColorWrite, CullMode, FrontFace,
@@ -14,7 +18,7 @@ use bevy::{
         shader::{ShaderStage, ShaderStages},
         texture::TextureFormat,
     },
-render::pipeline::DepthStencilStateDescriptor, render::pipeline::CompareFunction, render::pipeline::StencilStateFaceDescriptor, render::pipeline::StencilStateDescriptor};
+};
 
 pub const LDTK_TILEMAP_PIPELINE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(PipelineDescriptor::TYPE_UUID, 10348532193540037685);
@@ -65,8 +69,6 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
                 ShaderStage::Fragment,
                 include_str!("pipeline/tilemap.frag"),
             ))),
-            // vertex: asset_server.load("tilemap.vert"),
-            // fragment: Some(asset_server.load("tilemap.frag")),
         })
     }
 }
@@ -96,6 +98,7 @@ unsafe impl Byteable for LdtkTilemapMapInfo {}
 pub struct LdtkTilemapTilesetInfo {
     pub width: u32,
     pub height: u32,
+    pub grid_size: u32,
 }
 unsafe impl Byteable for LdtkTilemapTilesetInfo {}
 

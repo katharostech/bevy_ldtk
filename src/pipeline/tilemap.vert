@@ -28,6 +28,7 @@ layout(set = 2, binding = 1) uniform LdtkTilemapMaterial_map_info {
 layout(set = 2, binding = 2) uniform LdtkTilemapMaterial_tileset_info {
     uint tileset_width_tiles;
     uint tileset_height_tiles;
+    uint tileset_grid_size;
 };
 layout(set = 2, binding = 3) uniform texture2D LdtkTilemapMaterial_texture;
 layout(set = 2, binding = 4) uniform sampler LdtkTilemapMaterial_texture_sampler;
@@ -45,12 +46,12 @@ void main() {
     vec3 pos = vec3(
         Vertex_Position.x * map_width_tiles,
         Vertex_Position.y * map_height_tiles,
-        Vertex_Position.z + 0.01 * layer_index
+        Vertex_Position.z + 1 * layer_index
     );
 
     // Output the vertex UV for use in the fragment shader
     v_Uv = Vertex_Uv;
 
     // Set the vertice positions
-    gl_Position = ViewProj * Model * vec4(pos * map_scale, 1);
+    gl_Position = ViewProj * Model * vec4(pos * map_scale * tileset_grid_size, 1);
 }

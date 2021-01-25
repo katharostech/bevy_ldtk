@@ -18,6 +18,7 @@ layout(set = 2, binding = 1) uniform LdtkTilemapMaterial_map_info {
 layout(set = 2, binding = 2) uniform LdtkTilemapMaterial_tileset_info {
     uint tileset_width_tiles;
     uint tileset_height_tiles;
+    uint tileset_grid_size;
 };
 layout(set = 2, binding = 3) uniform texture2D LdtkTilemapMaterial_texture;
 layout(set = 2, binding = 4) uniform sampler LdtkTilemapMaterial_texture_sampler;
@@ -45,14 +46,16 @@ void main() {
     // Get the index of the tile in the map as counted left to right, top to bottom
     uint map_tile_idx = uint(map_tile_x + (map_tile_y * map_width_tiles));
 
-    // If the tile index is not the empty tile index
-    if (map_tile_idx != EMPTY_TILE_IDX) {
-        // Use that tile index to read into our map tiles buffer and get the info for the current
-        // tile.
-        TileInfo tile_info = map_tiles[map_tile_idx];
+    // Use that tile index to read into our map tiles buffer and get the info for the current
+    // tile.
+    TileInfo tile_info = map_tiles[map_tile_idx];
 
-        // Get the index of the tileset tile that we should fill this map tile with
-        uint tileset_tile_idx = tile_info.index;
+    // Get the index of the tileset tile that we should fill this map tile with
+    uint tileset_tile_idx = tile_info.index;
+
+    // If the tile index is not the empty tile index
+    if (tileset_tile_idx != EMPTY_TILE_IDX) {
+
         // Calculate the tileset tile y value from the tileset tile index
         uint tileset_tile_y = uint(floor(tileset_tile_idx / tileset_width_tiles));
         // And the tileset tile x value 
@@ -93,5 +96,9 @@ void main() {
             // tile.
             tileset_tile * tileset_tile_size + tile_uv * tileset_tile_size
         );
+
+    // If this is an empty tile, just make it transparent
+    } else {
+        o_Color = vec4(0, 1, 0, 0);
     }
 }
