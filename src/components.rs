@@ -8,9 +8,14 @@ pub struct LdtkMapBundle {
     pub config: LdtkMapConfig,
 }
 
+/// Configuration for how to spawn and display the Ldtk map
 #[derive(Default)]
 pub struct LdtkMapConfig {
+    /// Whether or not to set the clear color of the screen to match the background color of the
+    /// LDtk map.
     pub set_clear_color: bool,
+    /// Which level from the LDtk project to display, if there are more than one level.
+    pub level: usize,
 }
 
 #[derive(Bundle)]

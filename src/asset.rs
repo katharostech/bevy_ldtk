@@ -6,12 +6,14 @@ use bevy::{
 
 use crate::{LdtkMap, LdtkTileset};
 
-pub fn add_assets(app: &mut AppBuilder) {
+/// Add asset types and asset loader to the app builder
+pub(crate) fn add_assets(app: &mut AppBuilder) {
     app.add_asset::<LdtkMap>()
         .add_asset::<LdtkTileset>()
         .init_asset_loader::<LdtkMapLoader>();
 }
 
+/// An LDTK map asset loader
 #[derive(Default)]
 struct LdtkMapLoader;
 
@@ -23,7 +25,7 @@ impl AssetLoader for LdtkMapLoader {
     ) -> bevy::utils::BoxedFuture<'a, Result<(), anyhow::Error>> {
         // Create a future for the load function
         Box::pin(async move {
-            // Deserialize the project file
+            // Deserialize the LDTK project file
             let project: ldtk::Project = serde_json::from_slice(bytes).context(format!(
                 "Could not parse LDtk map file: {:?}",
                 load_context.path()
@@ -47,7 +49,7 @@ impl AssetLoader for LdtkMapLoader {
                         .join(&tileset.rel_path);
                     let asset_path = AssetPath::new(file_path.clone(), None);
 
-                    // Load and obtain a handle to the tileset image asset
+                    // Obtain a handle to the tileset image asset
                     let handle: Handle<Texture> = load_context.get_handle(asset_path.clone());
 
                     // Register that image as a labeled sub-asset
@@ -74,6 +76,7 @@ impl AssetLoader for LdtkMapLoader {
     }
 
     fn extensions(&self) -> &[&str] {
-        &["ldtk"]
+        // Register this loader for .ldtk files and for .ldtk.json files.
+        &["ldtk", "ldtk.json"]
     }
 }

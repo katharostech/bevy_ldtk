@@ -9,6 +9,7 @@ A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but ho
 ## Features
 
 - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
+- Heavily commented to help others who want to see how to make their own tilemap renderers.
 
 ## Caveats
 

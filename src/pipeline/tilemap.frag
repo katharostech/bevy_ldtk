@@ -1,12 +1,26 @@
 #version 450
 
-// Input
+// # Fragment Shader
+//
+// Our fragment shader is responsible for rendering the pixels ( fragments ) in our tilemap by
+// selecting pixels from our tileset texture and placing them on the surface of our quad.
+//
+// It works by taking the tilemap information in our `LdtkTilemapMaterial` render resource, and then
+// working out the color that the current fragment should be based on the UV position the fragment
+// is in on the quad.
+
+// ## Inputs
+
+// We take the UV value from the vertex shader
 layout(location = 0) in vec2 v_Uv;
 
-// Output
+// We output the color of this fragment
 layout(location = 0) out vec4 o_Color;
 
-// Tilemap uniforms
+// ### Tileset uniforms
+//
+// These tileset uiniforms are added to the shader inputs in `pipeline.rs` and correspond directly
+// to our `LdtkTilemapMaterial` struct. 
 layout(set = 2, binding = 0) uniform LdtkTilemapMaterial_scale {
     float map_scale;
 };
@@ -20,6 +34,8 @@ layout(set = 2, binding = 2) uniform LdtkTilemapMaterial_tileset_info {
     uint tileset_height_tiles;
     uint tileset_grid_size;
 };
+// These texture uniforms are automatically added by Bevy to represent the `Handle<Texture>` that
+// was in our corresponding Rust struct.
 layout(set = 2, binding = 3) uniform texture2D LdtkTilemapMaterial_texture;
 layout(set = 2, binding = 4) uniform sampler LdtkTilemapMaterial_texture_sampler;
 struct TileInfo {
@@ -31,9 +47,10 @@ layout(set = 2, binding = 5) buffer LdtkTilemapMaterial_tiles {
 };
 
 void main() {
-    // We use the maximum number in a uint to represent an empty tile
+    // We use the maximum number in a uint to represent an empty tile, and assign it to a constant
     uint EMPTY_TILE_IDX = 4294967295;
 
+    // Create a map size vector from the width and height of the map
     vec2 map_size = vec2(map_width_tiles, map_height_tiles);
 
     // Get the x index of the tile in the map by rounding which square this fragment is in
@@ -46,14 +63,15 @@ void main() {
     // Get the index of the tile in the map as counted left to right, top to bottom
     uint map_tile_idx = uint(map_tile_x + (map_tile_y * map_width_tiles));
 
-    // Use that tile index to read into our map tiles buffer and get the info for the current
+    // Use that tile index to read from our map tiles buffer and get the info for the current
     // tile.
     TileInfo tile_info = map_tiles[map_tile_idx];
 
     // Get the index of the tileset tile that we should fill this map tile with
     uint tileset_tile_idx = tile_info.index;
 
-    // If the tile index is not the empty tile index
+    // Check whether or not the tileset index for this tile in the map is not the empty tile.
+    // If it isn't we can render the color for this fragment.
     if (tileset_tile_idx != EMPTY_TILE_IDX) {
 
         // Calculate the tileset tile y value from the tileset tile index
@@ -90,10 +108,9 @@ void main() {
         // Sample our fragment from the tileset texture
         o_Color = texture(
             sampler2D(LdtkTilemapMaterial_texture, LdtkTilemapMaterial_texture_sampler),
-            // The UV coordinate calculated here is the location from the tileset that we take
-            // our pixels. We calculate it by offsetting the UV according to the location of the
-            // tile in the tileset, and then adding the tile UV scaled to the size of a tilemap
-            // tile.
+            // The UV coordinate calculated here is the location from the tileset that we take our
+            // pixels. We calculate it by offsetting the UV according to the location of the tile in
+            // the tileset, and then adding the tile UV scaled to the size of a tilemap tile.
             tileset_tile * tileset_tile_size + tile_uv * tileset_tile_size
         );
 

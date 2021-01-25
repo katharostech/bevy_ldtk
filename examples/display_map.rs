@@ -22,12 +22,11 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
             config: LdtkMapConfig {
                 set_clear_color: true,
+                level: 0,
             },
         })
         .spawn(Camera2dBundle::default());
 }
-
-struct Test;
 
 const SPEED: f32 = 1.0;
 
