@@ -91,7 +91,7 @@ Note that as Bevy master may or may not introduce breaking API changes, this cra
 
 ## Caveats
 
-The plugin is in relatively early stages, but it is still rather functional for many basic maps
+This plugin is in relatively early stages of development, and while it can load many basic maps, there are some caveats:
 
 - Many features are not supported yet:
   - multiple overlapping autotile tiles
