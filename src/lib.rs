@@ -5,6 +5,9 @@
 //! ## Usage
 //!
 //! ```rust
+//! use bevy::prelude::*;
+//! use bevy_ldtk::*;
+//!
 //! fn main() {
 //!     App::build()
 //!         .add_plugins(DefaultPlugins)
@@ -16,21 +19,21 @@
 //! fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
 //!     commands
 //!         // Spawn a camera
-//!         .spawn(Camera2dBundle::default());
+//!         .spawn(Camera2dBundle::default())
 //!         // Spawn a map bundle
 //!         .spawn(LdtkMapBundle {
 //!             // Specify the path to the map asset to load
-//!             map: asset_server.load("myMap.ldtk"),
-//!             // You can specify a scale or leave it set to 1 for 1 to 1 pixel size
-//!             scale: MapScale(3.),
+//!             map: asset_server.load("map1.ldtk"),
 //!             config: LdtkMapConfig {
 //!                 // Automatically set the clear color to the LDtk background color
 //!                 set_clear_color: true,
+//!                 // You can specify a scale or leave it set to 1 for 1 to 1 pixel size
+//!                 scale: 3.0,
 //!                 // Set which level to load out of the map or leave it to 0 for the default level
 //!                 level: 0,
 //!             },
 //!             ..Default::default()
-//!         })
+//!         });
 //! }
 //! ```
 //!

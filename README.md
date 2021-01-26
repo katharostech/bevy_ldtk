@@ -1,5 +1,10 @@
 # Bevy LDtk
 
+[![Crates.io](https://img.shields.io/crates/v/bevy_ldtk.svg)](https://crates.io/crates/bevy_ldtk)
+[![Docs.rs](https://docs.rs/bevy_ldtk/badge.svg)](https://docs.rs/bevy_ldtk)
+[![Katharos License](https://img.shields.io/badge/License-Katharos-blue)](https://github.com/katharostech/katharos-license)
+
+
 A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but hopes to be usable soon.
 
 [ldtk]: https://github.com/deepnight/ldtk
@@ -9,6 +14,9 @@ A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but ho
 ## Usage
 
 ```rust
+use bevy::prelude::*;
+use bevy_ldtk::*;
+
 fn main() {
     App::build()
         .add_plugins(DefaultPlugins)
@@ -20,21 +28,21 @@ fn main() {
 fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands
         // Spawn a camera
-        .spawn(Camera2dBundle::default());
+        .spawn(Camera2dBundle::default())
         // Spawn a map bundle
         .spawn(LdtkMapBundle {
             // Specify the path to the map asset to load
-            map: asset_server.load("myMap.ldtk"),
-            // You can specify a scale or leave it set to 1 for 1 to 1 pixel size
-            scale: MapScale(3.),
+            map: asset_server.load("map1.ldtk"),
             config: LdtkMapConfig {
                 // Automatically set the clear color to the LDtk background color
                 set_clear_color: true,
+                // You can specify a scale or leave it set to 1 for 1 to 1 pixel size
+                scale: 3.0,
                 // Set which level to load out of the map or leave it to 0 for the default level
                 level: 0,
             },
             ..Default::default()
-        })
+        });
 }
 ```
 
