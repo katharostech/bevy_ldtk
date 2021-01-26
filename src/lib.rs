@@ -1,6 +1,7 @@
-//! A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but hopes to be usable soon.
+//! A [Bevy] plugin for loading [LDtk] tile maps.
 //!
 //! [ldtk]: https://github.com/deepnight/ldtk
+//! [bevy]: https://bevyengine.org
 //!
 //! ## Usage
 //!

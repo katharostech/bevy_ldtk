@@ -4,12 +4,14 @@
 [![Docs.rs](https://docs.rs/bevy_ldtk/badge.svg)](https://docs.rs/bevy_ldtk)
 [![Katharos License](https://img.shields.io/badge/License-Katharos-blue)](https://github.com/katharostech/katharos-license)
 
-
-A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but hopes to be usable soon.
+A [Bevy] plugin for loading [LDtk] 2D tile maps.
 
 [ldtk]: https://github.com/deepnight/ldtk
+[bevy]: https://bevyengine.org
 
 ![screenshot](./doc/screenshot.png)
+
+_( Screenshot assets from the **CanariPack 8BIT TopDown** art pack by **Johan Vinet** )_
 
 ## Usage
 
