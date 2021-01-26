@@ -1,7 +1,6 @@
 //! A [Bevy] plugin for loading [LDtk] tile maps.
 //!
-//! [ldtk]: https://github.com/deepnight/ldtk
-//! [bevy]: https://bevyengine.org
+//! [ldtk]: https://github.com/deepnight/ldtk [bevy]: https://bevyengine.org
 //!
 //! ## Usage
 //!
@@ -37,8 +36,11 @@
 //!         });
 //! }
 //! ```
+//! ### Layers
 //!
-//! Each layer in the loaded level is laid out in a quad one unit further away from the camera than the one before. This should allow you to put you character, etc in the space between the layers to have some layers show in front of the character and the others show behind.
+//! Each layer in the loaded level is pushed one unit further away from the camera than the one
+//! before. This should allow you to put your character, etc. in the space between the layers to
+//! have some layers show in front of the character and the others show behind.
 //!
 //! ### Bevy Versions
 //!
@@ -49,7 +51,8 @@
 //!
 //! #### Using Bevy From Master
 //!
-//! You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the `bevy-unstable` feature to this crate:
+//! You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the
+//! `bevy-unstable` feature to this crate:
 //!
 //! ```toml
 //! [dependencies]
@@ -59,7 +62,8 @@
 //! bevy = { git = "https://github.com/bevyengine/bevy.git" }
 //! ```
 //!
-//! Note that as Bevy master may or may not introduce breaking API changes, this crate may or may not compile when using the `bevy-unstable` feature.
+//! Note that as Bevy master may or may not introduce breaking API changes, this crate may or may
+//! not compile when using the `bevy-unstable` feature.
 //!
 //! ## Features
 //!
@@ -77,11 +81,14 @@
 //!   - levels in separate files
 //! - Occasionally some slight rendering artifacts between tiles. Not sure what causes those yet.
 //!
-//! If you run into anything that isn't supported that you want to use in your game open an issue or PR to help prioritize what gets implemented.
+//! If you run into anything that isn't supported that you want to use in your game open an issue or
+//! PR to help prioritize what gets implemented.
 //!
 //! ## License
 //!
-//! Bevy LDtk is licensed under the [Katharos License][k_license] which places certain restrictions on what you are allowed to use it for. Please read and understand the terms before using Bevy LDtk for your project.
+//! Bevy LDtk is licensed under the [Katharos License][k_license] which places certain restrictions
+//! on what you are allowed to use it for. Please read and understand the terms before using Bevy
+//! LDtk for your project.
 //!
 //! [k_license]: https://github.com/katharostech/katharos-license
 

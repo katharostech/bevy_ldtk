@@ -48,7 +48,9 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
 }
 ```
 
-Each layer in the loaded level is laid out in a quad one unit further away from the camera than the one before. This should allow you to put you character, etc in the space between the layers to have some layers show in front of the character and the others show behind.
+### Layers
+
+Each layer in the loaded level is laid out in a quad one unit further away from the camera than the one before. This should allow you to put your character, etc. in the space between the layers to have some layers show in front of the character and the others show behind.
 
 ### Running the Example
 
