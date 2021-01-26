@@ -58,6 +58,8 @@ bevy_ldtk = { version = "0.2", features = ["bevy-unstable"] }
 bevy = { git = "https://github.com/bevyengine/bevy.git"
 ```
 
+Note that as Bevy master may or may not introduce breaking API changes, this crate may or may not compile when using the `bevy-unstable` feature.
+
 ## Features
 
 - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
