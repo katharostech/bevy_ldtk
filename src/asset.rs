@@ -2,15 +2,23 @@ use anyhow::Context;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
     prelude::*,
-    utils::BoxedFuture,
+    reflect::TypeUuid,
+    utils::{BoxedFuture, HashMap},
 };
 
-use crate::{LdtkMap, LdtkTileset};
+/// An LDtk map asset
+#[derive(TypeUuid)]
+#[uuid = "abd7b6d9-633f-4322-a8f4-e5f011cae9c6"]
+pub struct LdtkMap {
+    /// The full project structure for the LDtk map
+    pub project: ldtk::Project,
+    /// A mapping of Tileset identifiers to their texture handles
+    pub tile_sets: HashMap<String, Handle<Texture>>,
+}
 
 /// Add asset types and asset loader to the app builder
 pub(crate) fn add_assets(app: &mut AppBuilder) {
     app.add_asset::<LdtkMap>()
-        .add_asset::<LdtkTileset>()
         .init_asset_loader::<LdtkMapLoader>();
 }
 
@@ -38,6 +46,9 @@ impl AssetLoader for LdtkMapLoader {
                 tile_sets: Default::default(),
             };
 
+            // Create our dependency list
+            let mut dependencies = Vec::new();
+
             // Loop through the definitions in the project
             for def in &map.project.defs {
                 // Loop through the tilesets
@@ -50,33 +61,12 @@ impl AssetLoader for LdtkMapLoader {
                         .join(&tileset.rel_path);
                     let asset_path = AssetPath::new(file_path.clone(), None);
 
+                    // Add asset to our dependencies list to make sure it is loaded by the asset
+                    // server when our map is.
+                    dependencies.push(asset_path.clone());
+
                     // Obtain a handle to the tileset image asset
                     let handle: Handle<Texture> = load_context.get_handle(asset_path.clone());
-
-                    // Register that image as a labeled sub-asset
-                    let asset_label = format!("tileset/{}", tileset.identifier);
-
-                    // Bevy 0.4 doesn't require a type parameter for `set_labeled_asset`
-                    #[cfg(not(feature = "bevy-unstable"))]
-                    load_context.set_labeled_asset(
-                        &asset_label,
-                        LoadedAsset::new(LdtkTileset {
-                            texture: handle.clone(),
-                        })
-                        // Make sure that the image is loaded when our map is loaded
-                        .with_dependency(asset_path),
-                    );
-
-                    // Bevy latest requires an extra type parameter
-                    #[cfg(feature = "bevy-unstable")]
-                    load_context.set_labeled_asset::<LdtkTileset>(
-                        &asset_label,
-                        LoadedAsset::new(LdtkTileset {
-                            texture: handle.clone(),
-                        })
-                        // Make sure that the image is loaded when our map is loaded
-                        .with_dependency(asset_path),
-                    );
 
                     // Add the tileset handle to the map asset
                     map.tile_sets.insert(tileset.identifier.clone(), handle);
@@ -84,14 +74,15 @@ impl AssetLoader for LdtkMapLoader {
             }
 
             // Set the loaded map as the default asset for this file
-            load_context.set_default_asset(LoadedAsset::new(map));
+            load_context.set_default_asset(LoadedAsset::new(map).with_dependencies(dependencies));
 
             Ok(())
         })
     }
 
     fn extensions(&self) -> &[&str] {
-        // Register this loader for .ldtk files and for .ldtk.json files.
+        // Register this loader for .ldtk files and for .ldtk.json files. ( .ldtk.json will only
+        // work after Bevy 0.5 is released )
         &["ldtk", "ldtk.json"]
     }
 }

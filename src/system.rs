@@ -1,3 +1,4 @@
+use asset::LdtkMap;
 use bevy::{
     render::pipeline::RenderPipeline, render::texture::FilterMode,
     render::texture::SamplerDescriptor, utils::HashMap,
@@ -62,18 +63,20 @@ fn process_ldtk_tilesets(
     }
 }
 
+struct LdtkMapHasLoaded;
+
 /// This system spawns the map layers for every unloaded entity with an LDtk map
 fn process_ldtk_maps(
     commands: &mut Commands,
     mut clear_color: ResMut<ClearColor>,
     mut new_maps: Query<
-        (Entity, &Handle<LdtkMap>, &MapScale, &LdtkMapConfig),
+        (Entity, &Handle<LdtkMap>, &LdtkMapConfig),
         Without<LdtkMapHasLoaded>,
     >,
     map_assets: Res<Assets<LdtkMap>>,
 ) {
     // Loop through all of the maps
-    for (ent, map_handle, scale, config) in new_maps.iter_mut() {
+    for (ent, map_handle, config) in new_maps.iter_mut() {
         // Get the map asset, if available
         if let Some(map) = map_assets.get(map_handle) {
             let project = &map.project;
@@ -209,7 +212,7 @@ fn process_ldtk_maps(
                     // Add our material which the shaders will use to render the map
                     .with(LdtkTilemapMaterial {
                         map_info,
-                        scale: scale.0,
+                        scale: config.scale,
                         texture: tileset_texture.clone(),
                         tiles,
                         tileset_info,

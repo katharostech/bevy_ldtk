@@ -64,6 +64,7 @@ Note that as Bevy master may or may not introduce breaking API changes, this cra
 ## Features
 
 - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
+- Supports hot reload through the Bevy asset server integration
 - Heavily commented code to help others who want to see how to make their own tilemap renderers.
 
 ## Caveats
@@ -75,7 +76,6 @@ The plugin is in relatively early stages, but it is still rather functional for 
   - tilemaps with spacing in them
   - levels in separate files
 - Occasionally some slight rendering artifacts between tiles. Not sure what causes those yet.
-- No hot reload yet
 
 If you run into anything that isn't supported that you want to use in your game open an issue or PR to help prioritize what gets implemented.
 

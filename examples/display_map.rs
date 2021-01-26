@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use bevy::{prelude::*, render::camera::Camera};
-use bevy_ldtk::{LdtkMapBundle, LdtkMapConfig, LdtkPlugin, MapScale};
+use bevy_ldtk::{LdtkMapBundle, LdtkMapConfig, LdtkPlugin};
 
 fn main() {
     App::build()
@@ -22,9 +22,9 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
             map: asset_server.load(PathBuf::from(
                 &std::env::args().nth(1).unwrap_or("map1.ldtk".into()),
             )),
-            scale: MapScale(3.),
             config: LdtkMapConfig {
                 set_clear_color: true,
+                scale: 3.0,
                 level: std::env::args()
                     .nth(2)
                     .map(|x| x.parse().unwrap())
