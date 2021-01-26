@@ -22,7 +22,10 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
             config: LdtkMapConfig {
                 set_clear_color: true,
-                level: 0,
+                level: std::env::args()
+                    .nth(2)
+                    .map(|x| x.parse().unwrap())
+                    .unwrap_or(0),
             },
         })
         .spawn(Camera2dBundle::default());

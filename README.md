@@ -15,7 +15,6 @@ A plugin to bevy for loading [LDtk] 2D tile maps. Still work-in-progress, but ho
 
 The plugin is in very early development and there are some large caveats that will be fixed in later releases:
 
-- Only the first level of the map is loaded
 - Many features are not properly handled yet, such as advanced auto-tiling and transparency, etc.
 
 ## License
