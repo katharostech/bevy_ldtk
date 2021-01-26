@@ -52,10 +52,11 @@ Each layer in the loaded level is laid out in a quad one unit further away from 
 You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the `bevy-unstable` feature to this crate:
 
 ```toml
+[dependencies]
 bevy_ldtk = { version = "0.2", features = ["bevy-unstable"] }
 
 [patch.crates-io]
-bevy = { git = "https://github.com/bevyengine/bevy.git"
+bevy = { git = "https://github.com/bevyengine/bevy.git" }
 ```
 
 Note that as Bevy master may or may not introduce breaking API changes, this crate may or may not compile when using the `bevy-unstable` feature.
