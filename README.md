@@ -48,6 +48,18 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
 
 Each layer in the loaded level is laid out in a quad one unit further away from the camera than the one before. This should allow you to put you character, etc in the space between the layers to have some layers show in front of the character and the others show behind.
 
+### Running the Example
+
+```bash
+cargo run --example display_map
+```
+
+You can also copy your own LDtk maps into the assets folder and then run them by specifying the map file name and the level. For instance, this will load the second level from `map2.ldtk`:
+
+```bash
+cargo run --example display_map -- map2.ldtk 1
+```
+
 ### Bevy Versions
 
 | Bevy Version | Plugin Version                                 |
