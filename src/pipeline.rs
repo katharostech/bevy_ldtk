@@ -20,9 +20,15 @@ use bevy::{
     },
 };
 
+// Create a handle to our pipeline that we can use later when we want to spawn our tilemap. We just
+// have to create a unique ID for our pipeline and then we will register our pipeline with the
+// `Assets<Pipeline>` using this handle.
 pub const LDTK_TILEMAP_PIPELINE_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(PipelineDescriptor::TYPE_UUID, 10348532193540037685);
 
+/// Builds the pipeline used to render a tilemap layer. The configuration here is taken from the
+/// pipeline configuration used to render Bevy sprites in the `bevy_sprite` crate. The difference is
+/// our custom shaders.
 fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescriptor {
     PipelineDescriptor {
         rasterization_state: Some(RasterizationStateDescriptor {
@@ -33,8 +39,6 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
             depth_bias_clamp: 0.0,
             clamp_depth: false,
         }),
-        // TODO: This was taken from the Bevy Sprite rendering settings, but for some reason
-        // the tiles dissapear when uncommenting it
         depth_stencil_state: Some(DepthStencilStateDescriptor {
             format: TextureFormat::Depth32Float,
             depth_write_enabled: true,
@@ -60,7 +64,8 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
             },
             write_mask: ColorWrite::ALL,
         }],
-        ..PipelineDescriptor::default_config(ShaderStages {
+        sample_count: 0,
+        ..PipelineDescriptor::new(ShaderStages {
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
                 include_str!("pipeline/tilemap.vert"),
@@ -73,17 +78,27 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
     }
 }
 
+/// This is the struct containing all of the information sent to the shaders that will render our
+/// tilemap.
+///
+/// All of this information is processed in the shader to produce the final rendered images.
 #[derive(RenderResources, Default, TypeUuid)]
 #[uuid = "3bf9e364-f29d-4d6c-92cf-93298466c620"]
 pub struct LdtkTilemapMaterial {
+    /// The scale of the map
     pub scale: f32,
+    /// Information about the map itself
     pub map_info: LdtkTilemapMapInfo,
+    /// Information about this layer's tileset
     pub tileset_info: LdtkTilemapTilesetInfo,
+    /// The handle to the texture for the layer's tileset
     pub texture: Handle<Texture>,
+    /// The list of all of the tiles in the map
     #[render_resources(buffer)]
     pub tiles: Vec<LdtkTilemapTileInfo>,
 }
 
+/// Information about the tilemap used by the GPU shaders
 #[repr(C)]
 #[derive(RenderResource, Default, Debug, Clone, Copy)]
 pub struct LdtkTilemapMapInfo {
@@ -93,6 +108,7 @@ pub struct LdtkTilemapMapInfo {
 }
 unsafe impl Byteable for LdtkTilemapMapInfo {}
 
+/// Information about a layer's tileset used by the GPU shaders
 #[repr(C)]
 #[derive(RenderResource, Default, Debug, Clone, Copy)]
 pub struct LdtkTilemapTilesetInfo {
@@ -102,9 +118,11 @@ pub struct LdtkTilemapTilesetInfo {
 }
 unsafe impl Byteable for LdtkTilemapTilesetInfo {}
 
+/// The information about a specific tile in a map layer
 #[repr(C)]
 #[derive(RenderResource, Default, Debug, Clone, Copy)]
 pub struct LdtkTilemapTileInfo {
+    /// The index of the tile image in the tileset texture
     pub tile_index: u32,
     /// First bit means flip x second bit means flip y:
     /// 0 == no flip
@@ -115,31 +133,37 @@ pub struct LdtkTilemapTileInfo {
 }
 unsafe impl Byteable for LdtkTilemapTileInfo {}
 
+/// This module is created just to hold the constants for our render graph node names
 pub mod node {
+    /// The name of the tilemap render graph node
     pub const LDTK_TILEMAP: &'static str = "ldtk_tile_map";
 }
 
+/// Configure the render pipeline for LDtk maps
 pub(crate) fn configure_pipeline(app: &AppBuilder) {
     // Get the app resources
     let resources = app.resources();
     let mut pipelines = resources.get_mut::<Assets<PipelineDescriptor>>().unwrap();
-    let asset_server = resources.get::<AssetServer>().unwrap();
-    asset_server.watch_for_changes().unwrap();
     let mut shaders = resources.get_mut::<Assets<Shader>>().unwrap();
     let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
 
-    // Add our pipeline asset
+    // Add our pipeline asset using the handle we created above. This will allow us to access our
+    // pipeline when spawning our tilemap layers using the handle.
     pipelines.set_untracked(
         LDTK_TILEMAP_PIPELINE_HANDLE,
         build_ldtk_tilemap_pipeline(&mut shaders),
     );
 
-    // Add our render LdtkTilemap render resources to the render graph  so that the data from that component
-    // will be available in the tilemap shader
+    // Add our render LdtkTilemap render resources to the render graph. This makes sure that if we
+    // create an entity with an `LdtkTilemapMaterial` component, that the data will be sent to our
+    // custom shaders.
     render_graph.add_system_node(
         node::LDTK_TILEMAP,
         RenderResourcesNode::<LdtkTilemapMaterial>::new(false),
     );
+
+    // We also connect our new render node to the main pass node so that it will get applied when
+    // rendering the main pass that all rendered objects are on by default.
     render_graph
         .add_node_edge(node::LDTK_TILEMAP, base::node::MAIN_PASS)
         .unwrap();

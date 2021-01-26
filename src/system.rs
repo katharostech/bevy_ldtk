@@ -163,8 +163,7 @@ fn process_ldtk_maps(
                         ),
                         LdtkTilemapTileInfo {
                             tile_index: tileset_tile_y * tileset_width_tiles + tileset_tile_x,
-                            flip_bits: if tile.flip.x { 1 } else { 0 }
-                                | if tile.flip.y { 2 } else { 0 },
+                            flip_bits: if tile.f.x { 1 } else { 0 } | if tile.f.y { 2 } else { 0 },
                         },
                     );
                 }
@@ -215,7 +214,7 @@ fn process_ldtk_maps(
                     .with(Parent(ent));
             }
 
-            // Mark the map as having been loaded
+            // Mark the map as having been loaded so that we don't process it again
             commands.insert_one(ent, LdtkMapHasLoaded);
         }
     }

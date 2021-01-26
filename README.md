@@ -43,7 +43,7 @@ Each layer in the loaded level is laid out in a quad one unit further away from 
 ## Features
 
 - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
-- Heavily commented to help others who want to see how to make their own tilemap renderers.
+- Heavily commented code to help others who want to see how to make their own tilemap renderers.
 
 ## Caveats
 
