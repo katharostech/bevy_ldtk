@@ -40,6 +40,24 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
 
 Each layer in the loaded level is laid out in a quad one unit further away from the camera than the one before. This should allow you to put you character, etc in the space between the layers to have some layers show in front of the character and the others show behind.
 
+### Bevy Versions
+
+| Bevy Version | Plugin Version                                 |
+| ------------ | ---------------------------------------------- |
+| 0.4          | 0.1, 0.2                                       |
+| master       | with the `bevy-unstable` feature ( see below ) |
+
+#### Using Bevy From Master
+
+You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the `bevy-unstable` feature to this crate:
+
+```toml
+bevy_ldtk = { version = "0.2", features = ["bevy-unstable"] }
+
+[patch.crates-io]
+bevy = { git = "https://github.com/bevyengine/bevy.git"
+```
+
 ## Features
 
 - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU

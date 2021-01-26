@@ -1,7 +1,8 @@
 use anyhow::Context;
 use bevy::{
-    asset::{AssetLoader, AssetPath, LoadedAsset},
+    asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
     prelude::*,
+    utils::BoxedFuture,
 };
 
 use crate::{LdtkMap, LdtkTileset};
@@ -21,8 +22,8 @@ impl AssetLoader for LdtkMapLoader {
     fn load<'a>(
         &'a self,
         bytes: &'a [u8],
-        load_context: &'a mut bevy::asset::LoadContext,
-    ) -> bevy::utils::BoxedFuture<'a, Result<(), anyhow::Error>> {
+        load_context: &'a mut LoadContext,
+    ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
         // Create a future for the load function
         Box::pin(async move {
             // Deserialize the LDTK project file
@@ -54,7 +55,21 @@ impl AssetLoader for LdtkMapLoader {
 
                     // Register that image as a labeled sub-asset
                     let asset_label = format!("tileset/{}", tileset.identifier);
+
+                    // Bevy 0.4 doesn't require a type parameter for `set_labeled_asset`
+                    #[cfg(not(feature = "bevy-unstable"))]
                     load_context.set_labeled_asset(
+                        &asset_label,
+                        LoadedAsset::new(LdtkTileset {
+                            texture: handle.clone(),
+                        })
+                        // Make sure that the image is loaded when our map is loaded
+                        .with_dependency(asset_path),
+                    );
+
+                    // Bevy latest requires an extra type parameter
+                    #[cfg(feature = "bevy-unstable")]
+                    load_context.set_labeled_asset::<LdtkTileset>(
                         &asset_label,
                         LoadedAsset::new(LdtkTileset {
                             texture: handle.clone(),

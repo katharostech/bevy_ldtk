@@ -1,6 +1,6 @@
 [package]
 name = "bevy_ldtk"
-version = "0.2.0-alpha2"
+version = "0.2.0"
 authors = ["Zicklag <zicklag@katharostech.com>"]
 edition = "2018"
 license-file = "LICENSE.md"
@@ -15,8 +15,17 @@ categories = [
     "parser-implementations"
 ]
 
+[features]
+default = []
+# Feature flag for attempting to support the latest Bevy from Git
+bevy-unstable = []
+
 [dependencies]
-bevy = "0.4.0"
-ldtk = { version = "0.2.0-alpha3" }
+bevy = "0.4"
+ldtk = "0.2"
 anyhow = "1.0.37"
 serde_json = "1.0.61"
+
+# Uncomment the below patch and enable the `bevy-unstable` feature to run on the latest unreleased Bevy
+# [patch.crates-io]
+# bevy = { git = "https://github.com/bevyengine/bevy.git" }

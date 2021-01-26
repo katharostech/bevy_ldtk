@@ -9,8 +9,8 @@ pub use components::*;
 pub use pipeline::*;
 
 use asset::add_assets;
-use system::add_systems;
 use pipeline::configure_pipeline;
+use system::add_systems;
 
 /// Adds support for loading LDtk tile maps
 #[derive(Default)]

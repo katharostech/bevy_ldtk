@@ -13,7 +13,11 @@ fn main() {
 }
 
 fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
+    // Enable hot reload
+    asset_server.watch_for_changes().unwrap();
+
     commands
+        // Spawn the map
         .spawn(LdtkMapBundle {
             map: asset_server.load(PathBuf::from(
                 &std::env::args().nth(1).unwrap_or("map1.ldtk".into()),
@@ -28,6 +32,7 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
             },
             ..Default::default()
         })
+        // And the camera
         .spawn(Camera2dBundle::default());
 }
 
