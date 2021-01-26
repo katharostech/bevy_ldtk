@@ -132,7 +132,14 @@ fn process_ldtk_maps(
                 };
 
                 // Create a list of all the tiles in the layer
-                let tiles = &layer.auto_layer_tiles;
+                let tiles = if !layer.auto_layer_tiles.is_empty() {
+                    &layer.auto_layer_tiles
+                } else if !layer.grid_tiles.is_empty() {
+                    &layer.grid_tiles
+                } else {
+                    // Skip the layer if there are no tiles for it
+                    continue;
+                };
 
                 // Create a virtual 2D map to stick the tiles in as we read the tiles and their
                 // target coordinates from the LDtk project.
