@@ -50,8 +50,9 @@ The plugin is in relatively early stages, but it is still rather functional for 
 - Many features are not supported yet:
   - multiple overlapping autotile tiles
   - tilemaps with spacing in them
+  - levels in separate files
 - Occasionally some slight rendering artifacts between tiles. Not sure what causes those yet.
-- Hot reload is not implemented yet
+- No hot reload yet
 
 If you run into anything that isn't supported that you want to use in your game open an issue or PR to help prioritize what gets implemented.
 
