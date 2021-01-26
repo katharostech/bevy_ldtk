@@ -16,10 +16,9 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(LdtkMapBundle {
             map: asset_server.load(PathBuf::from(
-                &std::env::args().nth(1).unwrap_or("Map.ldtk".into()),
+                &std::env::args().nth(1).unwrap_or("map1.ldtk".into()),
             )),
             scale: MapScale(3.),
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
             config: LdtkMapConfig {
                 set_clear_color: true,
                 level: std::env::args()
@@ -27,6 +26,7 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
                     .map(|x| x.parse().unwrap())
                     .unwrap_or(0),
             },
+            ..Default::default()
         })
         .spawn(Camera2dBundle::default());
 }
