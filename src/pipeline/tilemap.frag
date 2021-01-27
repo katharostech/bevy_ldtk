@@ -105,13 +105,23 @@ void main() {
             tile_uv.y = 1 - tile_uv.y;
         }
 
+        // Take the tile UV and convert it to a pixelated tile UV, that samples the same single
+        // coordinate from the tileset for the whole pixel in the map. In other words, grab the
+        // center of the pixel in our tileset to get the color. This helps prevent bleeding colors
+        // in between tiles in the map.
+        vec2 pixel_tile_uv = 
+            // round the tile coordinate down to the closest pixel
+            floor(tile_uv * tileset_grid_size) / tileset_grid_size
+            // and add half a pixel's width to grab the center of the pixel in the tileset
+            + 0.5 / float(tileset_grid_size);
+
         // Sample our fragment from the tileset texture
         o_Color = texture(
             sampler2D(LdtkTilemapMaterial_texture, LdtkTilemapMaterial_texture_sampler),
             // The UV coordinate calculated here is the location from the tileset that we take our
             // pixels. We calculate it by offsetting the UV according to the location of the tile in
             // the tileset, and then adding the tile UV scaled to the size of a tilemap tile.
-            tileset_tile * tileset_tile_size + tile_uv * tileset_tile_size
+            tileset_tile * tileset_tile_size + pixel_tile_uv * tileset_tile_size
         );
 
     // If this is an empty tile, just make it transparent

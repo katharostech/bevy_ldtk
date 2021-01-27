@@ -102,8 +102,11 @@ pub struct LdtkTilemapMaterial {
 #[repr(C)]
 #[derive(RenderResource, Default, Debug, Clone, Copy)]
 pub struct LdtkTilemapMapInfo {
+    /// The number of tiles wide the map is
     pub width: u32,
+    /// The number of tiles tall the map is
     pub height: u32,
+    /// The layer number for this map layer, counted starting at 0, with 0 being the topmost layer
     pub layer_index: u32,
 }
 unsafe impl Byteable for LdtkTilemapMapInfo {}
@@ -112,8 +115,11 @@ unsafe impl Byteable for LdtkTilemapMapInfo {}
 #[repr(C)]
 #[derive(RenderResource, Default, Debug, Clone, Copy)]
 pub struct LdtkTilemapTilesetInfo {
+    /// The number of tiles wide the tileset is
     pub width: u32,
+    /// The number of tiles tall the tileset is
     pub height: u32,
+    /// The number of pixels wide ( and tall ) a tile in the tileset grid is
     pub grid_size: u32,
 }
 unsafe impl Byteable for LdtkTilemapTilesetInfo {}
