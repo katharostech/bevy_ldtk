@@ -77,6 +77,9 @@ You can use this crate with Bevy master by adding a patch to your `Cargo.toml` a
 
 ```toml
 [dependencies]
+# Bevy version must be set to "0.4" and we will
+# override it in the patch below.
+bevy = "0.4"
 bevy_ldtk = { version = "0.2", features = ["bevy-unstable"] }
 
 [patch.crates-io]
