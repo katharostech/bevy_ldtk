@@ -68,7 +68,7 @@ cargo run --example display_map -- map2.ldtk 1
 
 | Bevy Version | Plugin Version                                 |
 | ------------ | ---------------------------------------------- |
-| 0.4          | 0.1, 0.2                                       |
+| 0.4          | 0.2                                            |
 | master       | with the `bevy-unstable` feature ( see below ) |
 
 #### Using Bevy From Master
