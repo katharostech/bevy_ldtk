@@ -69,10 +69,7 @@ struct LdtkMapHasLoaded;
 fn process_ldtk_maps(
     commands: &mut Commands,
     mut clear_color: ResMut<ClearColor>,
-    mut new_maps: Query<
-        (Entity, &Handle<LdtkMap>, &LdtkMapConfig),
-        Without<LdtkMapHasLoaded>,
-    >,
+    mut new_maps: Query<(Entity, &Handle<LdtkMap>, &LdtkMapConfig), Without<LdtkMapHasLoaded>>,
     map_assets: Res<Assets<LdtkMap>>,
 ) {
     // Loop through all of the maps
@@ -81,19 +78,6 @@ fn process_ldtk_maps(
         if let Some(map) = map_assets.get(map_handle) {
             let project = &map.project;
             let grid_size = map.project.default_grid_size;
-
-            // If the clear color should be set from the map background, set it
-            if config.set_clear_color {
-                *clear_color = ClearColor(
-                    Color::hex(
-                        &map.project
-                            .bg_color
-                            .strip_prefix("#")
-                            .expect("Invalid background color"),
-                    )
-                    .expect("Invalid background color"),
-                );
-            }
 
             // Create a hasmap mapping tileset def uid's to the tileset definition and it's texture handle
             let mut tilesets = HashMap::default();
@@ -116,6 +100,21 @@ fn process_ldtk_maps(
 
             // Get the level that we are to display
             let level = map.project.levels.get(config.level as usize).unwrap();
+
+            // If the clear color should be set from the map background, set it
+            if config.set_clear_color {
+                *clear_color = ClearColor(
+                    Color::hex(
+                        level
+                            .bg_color
+                            .as_ref()
+                            .unwrap_or(&map.project.default_level_bg_color)
+                            .strip_prefix("#")
+                            .expect("Invalid background color"),
+                    )
+                    .expect("Invalid background color"),
+                );
+            }
 
             // Loop through the layers in the selected level
             for (z, layer) in level
