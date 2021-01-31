@@ -106,7 +106,7 @@ pub struct LdtkTilemapMapInfo {
     pub width: u32,
     /// The number of tiles tall the map is
     pub height: u32,
-    /// The layer number for this map layer, counted starting at 0, with 0 being the topmost layer
+    /// The layer number for this map layer, counted starting at 0, with 0 being the lowest layer
     pub layer_index: u32,
 }
 unsafe impl Byteable for LdtkTilemapMapInfo {}

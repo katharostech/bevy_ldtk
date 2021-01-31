@@ -38,9 +38,11 @@
 //! ```
 //! ### Layers
 //!
-//! Each layer in the loaded level is pushed one unit further away from the camera than the one
-//! before. This should allow you to put your character, etc. in the space between the layers to
-//! have some layers show in front of the character and the others show behind.
+//! When the map layers are spawned, the bottommost layer is spawned at the transform coordinate of
+//! the `LdtkMapBundle`'s `Transform` component. Each layer after the bottom layer is placed one
+//! unit higher on the Z axis. To have your sprites for players, etc. appear on top of the rendered
+//! map, their Z axis translation must be higher than the map transform + the layer number that you
+//! want it to appear above.
 //!
 //! ### Bevy Versions
 //!

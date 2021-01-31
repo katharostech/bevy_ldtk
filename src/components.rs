@@ -11,6 +11,8 @@ pub struct LdtkMapBundle {
     pub transform: Transform,
     /// The map configuration settings
     pub config: LdtkMapConfig,
+    /// The global transformls
+    pub global_transform: GlobalTransform,
 }
 
 /// Configuration for how to display the Ldtk map

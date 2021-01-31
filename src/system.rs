@@ -122,7 +122,7 @@ fn process_ldtk_maps(
                 .as_ref()
                 .unwrap()
                 .iter()
-                .rev() // Reverse the layers so that they stack in the right Z order
+                .rev() // Reverse the layer order so that the bottom layer is first
                 .enumerate()
             {
                 // Get the information for the tileset associated to this layer
@@ -200,7 +200,7 @@ fn process_ldtk_maps(
                 };
 
                 // Spawn the layer into the world
-                commands
+                let layer = commands
                     // Use the default sprite bundle with our custom render pipeline
                     .spawn(SpriteBundle {
                         render_pipelines: RenderPipelines::from_pipelines(vec![
@@ -219,8 +219,11 @@ fn process_ldtk_maps(
                     // Add the `Handle<LdtkMap>` so that we will be able to hot reload this layer if
                     // the map changes.
                     .with(map_handle.clone())
-                    // Add the entity as a child of the LDtk map entity
-                    .with(Parent(ent));
+                    .current_entity()
+                    .unwrap();
+
+                // Add the entity as a child of the LDtk map entity
+                commands.push_children(ent, &[layer]);
             }
 
             // Mark the map as having been loaded so that we don't process it again

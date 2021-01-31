@@ -31,9 +31,13 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
                     .unwrap_or(0),
             },
             ..Default::default()
-        })
+        });
+
         // And the camera
-        .spawn(Camera2dBundle::default());
+        #[cfg(not(feature = "bevy-unstable"))]
+        commands.spawn(Camera2dBundle::default());
+        #[cfg(feature = "bevy-unstable")]
+        commands.spawn(OrthographicCameraBundle::new_2d());
 }
 
 const SPEED: f32 = 1.0;

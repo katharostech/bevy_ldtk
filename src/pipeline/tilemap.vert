@@ -56,14 +56,15 @@ layout(set = 2, binding = 5) buffer LdtkTilemapMaterial_tiles {
 layout(location = 0) out vec2 v_Uv;
 
 void main() {
+    float scale_factor = map_scale * float(tileset_grid_size);
+
     // Calculate a base position for the vertice, scaling it to match the aspect ratio of the
     // tilemap.
     vec3 pos = vec3(
-        Vertex_Position.x * map_width_tiles,
-        Vertex_Position.y * map_height_tiles,
-        // We also push layers down ( away from the camera, into the distance ) based on their layer
-        // index to position layers one behind the other. Each layer will be one unit apart.
-        Vertex_Position.z + 1 * layer_index
+        Vertex_Position.x * map_width_tiles * scale_factor,
+        Vertex_Position.y * map_height_tiles * scale_factor,
+        // Stack each successive layer on top of the ones before it, setting it one unit higher.
+        Vertex_Position.z + float(layer_index)
     );
 
     // Simply forward our v_Uv out variable from the input Vertex_Uv unchanged.
@@ -74,5 +75,5 @@ void main() {
         // Add the view and model projections, and multiply the position by the map scale and the
         // tileset grid size. The grid size multiplication makes sure that grid pixels correspond to
         // pixels on the screen, assuming the map_scale is set to 1.
-        ViewProj * Model * vec4(pos * map_scale * tileset_grid_size, 1);
+        ViewProj * Model * vec4(pos, 1);
 }
