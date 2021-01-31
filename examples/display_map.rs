@@ -29,15 +29,16 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
                     .nth(2)
                     .map(|x| x.parse().unwrap())
                     .unwrap_or(0),
+                center_map: true,
             },
             ..Default::default()
         });
 
-        // And the camera
-        #[cfg(not(feature = "bevy-unstable"))]
-        commands.spawn(Camera2dBundle::default());
-        #[cfg(feature = "bevy-unstable")]
-        commands.spawn(OrthographicCameraBundle::new_2d());
+    // And the camera
+    #[cfg(not(feature = "bevy-unstable"))]
+    commands.spawn(Camera2dBundle::default());
+    #[cfg(feature = "bevy-unstable")]
+    commands.spawn(OrthographicCameraBundle::new_2d());
 }
 
 const SPEED: f32 = 1.0;

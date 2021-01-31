@@ -3,9 +3,9 @@
 //! [ldtk]: https://github.com/deepnight/ldtk
 //! [bevy]: https://bevyengine.org
 //!
-//! ## Usage
+//! # Usage
 //!
-//! ```rust
+//! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_ldtk::*;
 //!
@@ -32,12 +32,15 @@
 //!                 scale: 3.0,
 //!                 // Set which level to load out of the map or leave it to 0 for the default level
 //!                 level: 0,
+//!                 // Tell the map to center around it's `Transform` instead of putting the top-left
+//!                 // corner of the map at the origin `Transform`.
+//!                 center_map: true,
 //!             },
 //!             ..Default::default()
 //!         });
 //! }
 //! ```
-//! ### Layers
+//! ## Layers
 //!
 //! When the map layers are spawned, the bottommost layer is spawned at the transform coordinate of
 //! the `LdtkMapBundle`'s `Transform` component. Each layer after the bottom layer is placed one
@@ -47,12 +50,12 @@
 //!
 //! ### Bevy Versions
 //!
-//! | Bevy Version | Plugin Version                                 |
-//! | ------------ | ---------------------------------------------- |
-//! | 0.4          | 0.2                                            |
-//! | master       | with the `bevy-unstable` feature ( see below ) |
+//! | Bevy Version | Plugin Version                                     |
+//! | ------------ | -------------------------------------------------- |
+//! | 0.4          | 0.2, 0.3                                           |
+//! | master       | 0.3 with the `bevy-unstable` feature ( see below ) |
 //!
-//! #### Using Bevy From Master
+//! ### Using Bevy From Master
 //!
 //! You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the
 //! `bevy-unstable` feature to this crate:
@@ -62,7 +65,7 @@
 //! # Bevy version must be set to "0.4" and we will
 //! # override it in the patch below.
 //! bevy = "0.4"
-//! bevy_ldtk = { version = "0.2", features = ["bevy-unstable"] }
+//! bevy_ldtk = { version = "0.3", features = ["bevy-unstable"] }
 //!
 //! [patch.crates-io]
 //! bevy = { git = "https://github.com/bevyengine/bevy.git" }
@@ -71,13 +74,13 @@
 //! Note that as Bevy master may or may not introduce breaking API changes, this crate may or may
 //! not compile when using the `bevy-unstable` feature.
 //!
-//! ## Features
+//! # Features
 //!
 //! - An efficient renderer that only uses 4 vertices per map layer and lays out tiles on the GPU
 //! - Supports hot reload through the Bevy asset server integration
 //! - Heavily commented code to help others who want to see how to make their own tilemap renderers.
 //!
-//! ## Caveats
+//! # Caveats
 //!
 //! The plugin is in relatively early stages, but it is still rather functional for many basic maps
 //!
@@ -90,7 +93,7 @@
 //! If you run into anything that isn't supported that you want to use in your game open an issue or
 //! PR to help prioritize what gets implemented.
 //!
-//! ## License
+//! # License
 //!
 //! Bevy LDtk is licensed under the [Katharos License][k_license] which places certain restrictions
 //! on what you are allowed to use it for. Please read and understand the terms before using Bevy

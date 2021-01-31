@@ -25,6 +25,11 @@ pub struct LdtkMapConfig {
     /// The scale of the pixels in the tilemap. A scale of 1 means that 1 pixel in the map should
     /// equal 1 pixel on the screen.
     pub scale: f32,
+    /// Whether or not to center the map about it's origin [`Transform`].
+    ///
+    /// This default value for this is false, in which case the top-left corner of the map will be
+    /// the map origin.
+    pub center_map: bool,
 }
 
 impl Default for LdtkMapConfig {
@@ -33,6 +38,7 @@ impl Default for LdtkMapConfig {
             set_clear_color: false,
             level: 0,
             scale: 1.0,
+            center_map: false,
         }
     }
 }

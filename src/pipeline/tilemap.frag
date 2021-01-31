@@ -29,6 +29,7 @@ layout(set = 2, binding = 1) uniform LdtkTilemapLayer_map_info {
     uint map_width_tiles;
     uint map_height_tiles;
     uint layer_index;
+    uint center_map;
 };
 layout(set = 2, binding = 2) uniform LdtkTilemapLayer_tileset_info {
     uint tileset_width_tiles;

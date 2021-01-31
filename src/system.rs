@@ -190,6 +190,7 @@ fn process_ldtk_maps(
                     height: (level.px_hei / map.project.default_grid_size) as u32,
                     width: (level.px_wid / map.project.default_grid_size) as u32,
                     layer_index: z as u32,
+                    center_map: if config.center_map { 1 } else { 0 },
                 };
 
                 // Initialize our tileset info

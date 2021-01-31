@@ -33,6 +33,7 @@ layout(set = 2, binding = 1) uniform LdtkTilemapLayer_map_info {
     uint map_width_tiles;
     uint map_height_tiles;
     uint layer_index;
+    uint center_map;
 };
 layout(set = 2, binding = 2) uniform LdtkTilemapLayer_tileset_info {
     uint tileset_width_tiles;
@@ -67,6 +68,17 @@ void main() {
         // Stack each successive layer on top of the ones before it, setting it one unit higher.
         Vertex_Position.z + float(layer_index)
     );
+
+    // If the map should not be centered, offset it so that the top-left corner of the map is
+    // at (0, 0)
+    if (center_map == 0) {
+        pos = vec3(
+            // Offset the X and Y by half of the map dimensions to un-center it
+            pos.x + map_width_tiles * scale_factor / 2.0,
+            pos.y - map_height_tiles * scale_factor / 2.0,
+            pos.z
+        );
+    }
 
     // Simply forward our v_Uv out variable from the input Vertex_Uv unchanged.
     v_Uv = Vertex_Uv;
