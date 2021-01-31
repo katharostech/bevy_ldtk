@@ -1,4 +1,3 @@
-use anyhow::Context;
 use bevy::{
     asset::{AssetLoader, AssetPath, LoadContext, LoadedAsset},
     prelude::*,
@@ -22,6 +21,13 @@ pub(crate) fn add_assets(app: &mut AppBuilder) {
         .init_asset_loader::<LdtkMapLoader>();
 }
 
+/// An error that occurs when loading a GLTF file
+#[derive(thiserror::Error, Debug)]
+pub enum LdtkMapLoaderError {
+    #[error("Could not parese LDtk map file")]
+    ParsingError(#[from] serde_json::Error),
+}
+
 /// An LDTK map asset loader
 #[derive(Default)]
 struct LdtkMapLoader;
@@ -33,51 +39,7 @@ impl AssetLoader for LdtkMapLoader {
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<(), anyhow::Error>> {
         // Create a future for the load function
-        Box::pin(async move {
-            // Deserialize the LDTK project file
-            let project: ldtk::Project = serde_json::from_slice(bytes).context(format!(
-                "Could not parse LDtk map file: {:?}",
-                load_context.path()
-            ))?;
-
-            // Create a map asset
-            let mut map = LdtkMap {
-                project,
-                tile_sets: Default::default(),
-            };
-
-            // Create our dependency list
-            let mut dependencies = Vec::new();
-
-            // Loop through the definitions in the project
-            for def in &map.project.defs {
-                // Loop through the tilesets
-                for tileset in &def.tilesets {
-                    // Get the path to the tileset image asset
-                    let file_path = load_context
-                        .path()
-                        .parent()
-                        .unwrap()
-                        .join(&tileset.rel_path);
-                    let asset_path = AssetPath::new(file_path.clone(), None);
-
-                    // Add asset to our dependencies list to make sure it is loaded by the asset
-                    // server when our map is.
-                    dependencies.push(asset_path.clone());
-
-                    // Obtain a handle to the tileset image asset
-                    let handle: Handle<Texture> = load_context.get_handle(asset_path.clone());
-
-                    // Add the tileset handle to the map asset
-                    map.tile_sets.insert(tileset.identifier.clone(), handle);
-                }
-            }
-
-            // Set the loaded map as the default asset for this file
-            load_context.set_default_asset(LoadedAsset::new(map).with_dependencies(dependencies));
-
-            Ok(())
-        })
+        Box::pin(async move { Ok(load_ldtk(bytes, load_context).await?) })
     }
 
     fn extensions(&self) -> &[&str] {
@@ -85,4 +47,50 @@ impl AssetLoader for LdtkMapLoader {
         // work after Bevy 0.5 is released )
         &["ldtk", "ldtk.json"]
     }
+}
+
+async fn load_ldtk<'a, 'b>(
+    bytes: &'a [u8],
+    load_context: &'a mut LoadContext<'b>,
+) -> Result<(), LdtkMapLoaderError> {
+    // Deserialize the LDTK project file
+    let project: ldtk::Project = serde_json::from_slice(bytes)?;
+
+    // Create a map asset
+    let mut map = LdtkMap {
+        project,
+        tile_sets: Default::default(),
+    };
+
+    // Create our dependency list
+    let mut dependencies = Vec::new();
+
+    // Loop through the definitions in the project
+    for def in &map.project.defs {
+        // Loop through the tilesets
+        for tileset in &def.tilesets {
+            // Get the path to the tileset image asset
+            let file_path = load_context
+                .path()
+                .parent()
+                .unwrap()
+                .join(&tileset.rel_path);
+            let asset_path = AssetPath::new(file_path.clone(), None);
+
+            // Add asset to our dependencies list to make sure it is loaded by the asset
+            // server when our map is.
+            dependencies.push(asset_path.clone());
+
+            // Obtain a handle to the tileset image asset
+            let handle: Handle<Texture> = load_context.get_handle(asset_path.clone());
+
+            // Add the tileset handle to the map asset
+            map.tile_sets.insert(tileset.identifier.clone(), handle);
+        }
+    }
+
+    // Set the loaded map as the default asset for this file
+    load_context.set_default_asset(LoadedAsset::new(map).with_dependencies(dependencies));
+
+    Ok(())
 }

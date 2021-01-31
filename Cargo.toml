@@ -25,6 +25,7 @@ bevy = "0.4"
 ldtk = "0.2"
 anyhow = "1.0.37"
 serde_json = "1.0.61"
+thiserror = "1.0.23"
 
 # Uncomment the below patch and enable the `bevy-unstable` feature to run on the latest unreleased Bevy
 # [patch.crates-io]
