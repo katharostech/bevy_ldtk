@@ -4,4 +4,6 @@
 [![Docs.rs](https://docs.rs/bevy_ldtk/badge.svg)](https://docs.rs/bevy_ldtk)
 [![Katharos License](https://img.shields.io/badge/License-Katharos-blue)](https://github.com/katharostech/katharos-license)
 
+![screenshot](./doc/screenshot.png)
+
 {{readme}}
