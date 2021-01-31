@@ -5,7 +5,7 @@
 // Our fragment shader is responsible for rendering the pixels ( fragments ) in our tilemap by
 // selecting pixels from our tileset texture and placing them on the surface of our quad.
 //
-// It works by taking the tilemap information in our `LdtkTilemapMaterial` render resource, and then
+// It works by taking the tilemap information in our `LdtkTilemapLayer` render resource, and then
 // working out the color that the current fragment should be based on the UV position the fragment
 // is in on the quad.
 
@@ -20,29 +20,30 @@ layout(location = 0) out vec4 o_Color;
 // ### Tileset uniforms
 //
 // These tileset uiniforms are added to the shader inputs in `pipeline.rs` and correspond directly
-// to our `LdtkTilemapMaterial` struct. 
-layout(set = 2, binding = 0) uniform LdtkTilemapMaterial_scale {
+// to our `LdtkTilemapLayer` struct. Bevy automaticaly maps our struct to these bindings based on
+// the naming convention of `StructName_field_name`.
+layout(set = 2, binding = 0) uniform LdtkTilemapLayer_scale {
     float map_scale;
 };
-layout(set = 2, binding = 1) uniform LdtkTilemapMaterial_map_info {
+layout(set = 2, binding = 1) uniform LdtkTilemapLayer_map_info {
     uint map_width_tiles;
     uint map_height_tiles;
     uint layer_index;
 };
-layout(set = 2, binding = 2) uniform LdtkTilemapMaterial_tileset_info {
+layout(set = 2, binding = 2) uniform LdtkTilemapLayer_tileset_info {
     uint tileset_width_tiles;
     uint tileset_height_tiles;
     uint tileset_grid_size;
 };
 // These texture uniforms are automatically added by Bevy to represent the `Handle<Texture>` that
 // was in our corresponding Rust struct.
-layout(set = 2, binding = 3) uniform texture2D LdtkTilemapMaterial_texture;
-layout(set = 2, binding = 4) uniform sampler LdtkTilemapMaterial_texture_sampler;
+layout(set = 2, binding = 3) uniform texture2D LdtkTilemapLayer_texture;
+layout(set = 2, binding = 4) uniform sampler LdtkTilemapLayer_texture_sampler;
 struct TileInfo {
     uint index;
     uint flip_bits;
 };
-layout(set = 2, binding = 5) buffer LdtkTilemapMaterial_tiles {
+layout(set = 2, binding = 5) buffer LdtkTilemapLayer_tiles {
     TileInfo[] map_tiles;
 };
 
@@ -117,7 +118,7 @@ void main() {
 
         // Sample our fragment from the tileset texture
         o_Color = texture(
-            sampler2D(LdtkTilemapMaterial_texture, LdtkTilemapMaterial_texture_sampler),
+            sampler2D(LdtkTilemapLayer_texture, LdtkTilemapLayer_texture_sampler),
             // The UV coordinate calculated here is the location from the tileset that we take our
             // pixels. We calculate it by offsetting the UV according to the location of the tile in
             // the tileset, and then adding the tile UV scaled to the size of a tilemap tile.

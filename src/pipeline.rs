@@ -79,12 +79,12 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
 }
 
 /// This is the struct containing all of the information sent to the shaders that will render our
-/// tilemap.
+/// tilemap layer.
 ///
-/// All of this information is processed in the shader to produce the final rendered images.
+/// Each map is rendered in layers that are a child of the main `Handle<LdtkMap>` entity.
 #[derive(RenderResources, Default, TypeUuid)]
 #[uuid = "3bf9e364-f29d-4d6c-92cf-93298466c620"]
-pub struct LdtkTilemapMaterial {
+pub struct LdtkTilemapLayer {
     /// The scale of the map
     pub scale: f32,
     /// Information about the map itself
@@ -161,11 +161,11 @@ pub(crate) fn configure_pipeline(app: &AppBuilder) {
     );
 
     // Add our render LdtkTilemap render resources to the render graph. This makes sure that if we
-    // create an entity with an `LdtkTilemapMaterial` component, that the data will be sent to our
+    // create an entity with an `LdtkTilemapLayer` component, that the data will be sent to our
     // custom shaders.
     render_graph.add_system_node(
         node::LDTK_TILEMAP,
-        RenderResourcesNode::<LdtkTilemapMaterial>::new(false),
+        RenderResourcesNode::<LdtkTilemapLayer>::new(false),
     );
 
     // We also connect our new render node to the main pass node so that it will get applied when

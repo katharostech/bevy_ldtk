@@ -24,29 +24,30 @@ layout(set = 1, binding = 0) uniform Transform {
 // ### Tileset uniforms
 //
 // These tileset uiniforms are added to the shader inputs in `pipeline.rs` and correspond directly
-// to our `LdtkTilemapMaterial` struct. 
-layout(set = 2, binding = 0) uniform LdtkTilemapMaterial_scale {
+// to our `LdtkTilemapLayer` struct. Bevy automaticaly maps our struct to these bindings based on
+// the naming convention of `StructName_field_name`.
+layout(set = 2, binding = 0) uniform LdtkTilemapLayer_scale {
     float map_scale;
 };
-layout(set = 2, binding = 1) uniform LdtkTilemapMaterial_map_info {
+layout(set = 2, binding = 1) uniform LdtkTilemapLayer_map_info {
     uint map_width_tiles;
     uint map_height_tiles;
     uint layer_index;
 };
-layout(set = 2, binding = 2) uniform LdtkTilemapMaterial_tileset_info {
+layout(set = 2, binding = 2) uniform LdtkTilemapLayer_tileset_info {
     uint tileset_width_tiles;
     uint tileset_height_tiles;
     uint tileset_grid_size;
 };
 // These texture uniforms are automatically added by Bevy to represent the `Handle<Texture>` that
 // was in our corresponding Rust struct.
-layout(set = 2, binding = 3) uniform texture2D LdtkTilemapMaterial_texture;
-layout(set = 2, binding = 4) uniform sampler LdtkTilemapMaterial_texture_sampler;
+layout(set = 2, binding = 3) uniform texture2D LdtkTilemapLayer_texture;
+layout(set = 2, binding = 4) uniform sampler LdtkTilemapLayer_texture_sampler;
 struct TileInfo {
     uint index;
     uint flip_bits;
 };
-layout(set = 2, binding = 5) buffer LdtkTilemapMaterial_tiles {
+layout(set = 2, binding = 5) buffer LdtkTilemapLayer_tiles {
     TileInfo[] map_tiles;
 };
 

@@ -209,7 +209,7 @@ fn process_ldtk_maps(
                         ..Default::default()
                     })
                     // Add our material which the shaders will use to render the map
-                    .with(LdtkTilemapMaterial {
+                    .with(LdtkTilemapLayer {
                         map_info,
                         scale: config.scale,
                         texture: tileset_texture.clone(),
@@ -244,7 +244,7 @@ fn hot_reload_maps(
     #[cfg(not(feature = "bevy-unstable"))] mut event_reader: Local<EventReader<MapEvent>>,
     #[cfg(not(feature = "bevy-unstable"))] events: Res<Events<MapEvent>>,
     #[cfg(feature = "bevy-unstable")] mut events: EventReader<MapEvent>,
-    layers: Query<(Entity, &Handle<LdtkMap>), With<LdtkTilemapMaterial>>,
+    layers: Query<(Entity, &Handle<LdtkMap>), With<LdtkTilemapLayer>>,
     maps: Query<(Entity, &Handle<LdtkMap>), With<LdtkMapConfig>>,
 ) {
     // Here we create a simple macro that just pastes our event handler code
