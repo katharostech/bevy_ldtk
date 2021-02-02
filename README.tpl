@@ -6,4 +6,8 @@
 
 ![screenshot](./doc/screenshot.png)
 
+_( Tileset from ["Cavernas"] by Adam Saltsman  )_
+
+["Cavernas"]: https://adamatomic.itch.io/cavernas
+
 {{readme}}

@@ -6,6 +6,10 @@
 
 ![screenshot](./doc/screenshot.png)
 
+_( Tileset from ["Cavernas"] by Adam Saltsman  )_
+
+["Cavernas"]: https://adamatomic.itch.io/cavernas
+
 A [Bevy] plugin for loading [LDtk] tile maps.
 
 [ldtk]: https://github.com/deepnight/ldtk
