@@ -48,7 +48,7 @@
 //! map, their Z axis translation must be higher than the map transform + the layer number that you
 //! want it to appear above.
 //!
-//! ### Bevy Versions
+//! ## Bevy Versions
 //!
 //! | Bevy Version | Plugin Version                                     |
 //! | ------------ | -------------------------------------------------- |
