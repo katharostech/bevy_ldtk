@@ -65,6 +65,10 @@ fn process_ldtk_tilesets(
 
 struct LdtkMapHasLoaded;
 
+/// Holds a `Handle<LdtkMap>` in a newtype for the tilemap layers so that iterating over map handles
+/// will only iterate over maps and not layers.
+struct LayerMapHandle(Handle<LdtkMap>);
+
 /// This system spawns the map layers for every unloaded entity with an LDtk map
 fn process_ldtk_maps(
     commands: &mut Commands,
@@ -219,7 +223,7 @@ fn process_ldtk_maps(
                     })
                     // Add the `Handle<LdtkMap>` so that we will be able to hot reload this layer if
                     // the map changes.
-                    .with(map_handle.clone())
+                    .with(LayerMapHandle(map_handle.clone()))
                     .current_entity()
                     .unwrap();
 
@@ -245,7 +249,7 @@ fn hot_reload_maps(
     #[cfg(not(feature = "bevy-unstable"))] mut event_reader: Local<EventReader<MapEvent>>,
     #[cfg(not(feature = "bevy-unstable"))] events: Res<Events<MapEvent>>,
     #[cfg(feature = "bevy-unstable")] mut events: EventReader<MapEvent>,
-    layers: Query<(Entity, &Handle<LdtkMap>), With<LdtkTilemapLayer>>,
+    layers: Query<(Entity, &LayerMapHandle)>,
     maps: Query<(Entity, &Handle<LdtkMap>), With<LdtkMapConfig>>,
 ) {
     // Here we create a simple macro that just pastes our event handler code
@@ -255,7 +259,7 @@ fn hot_reload_maps(
                 // When the map asset has been modified
                 AssetEvent::Modified { handle } => {
                     // Loop through all the layers in the world, find the ones that are for this map and remove them
-                    for (layer_ent, map_handle) in layers.iter() {
+                    for (layer_ent, LayerMapHandle(map_handle)) in layers.iter() {
                         if map_handle == handle {
                             commands.despawn(layer_ent);
                         }
