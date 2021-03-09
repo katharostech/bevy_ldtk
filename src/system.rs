@@ -91,9 +91,8 @@ fn process_ldtk_maps(
                 // Get the tileset info
                 let tileset_info = project
                     .defs
+                    .tilesets
                     .iter()
-                    .map(|x| &x.tilesets)
-                    .flatten()
                     .filter(|x| &x.identifier == tileset_name)
                     .next()
                     .expect("Could not find tilset inside of map data");
@@ -111,8 +110,6 @@ fn process_ldtk_maps(
                     Color::hex(
                         level
                             .bg_color
-                            .as_ref()
-                            .unwrap_or(&map.project.default_level_bg_color)
                             .strip_prefix("#")
                             .expect("Invalid background color"),
                     )
@@ -130,7 +127,7 @@ fn process_ldtk_maps(
                 .enumerate()
             {
                 // Get the information for the tileset associated to this layer
-                let (tileset_info, tileset_texture) = if let Some(uid) = layer.__tileset_def_uid {
+                let (tileset_info, tileset_texture) = if let Some(uid) = layer.tileset_def_uid {
                     tilesets.get(&uid).expect("Missing tileset").clone()
 
                 // Skip this layer if there is no tileset texture for it
@@ -170,7 +167,7 @@ fn process_ldtk_maps(
                         ),
                         LdtkTilemapTileInfo {
                             tile_index: tileset_tile_y * tileset_width_tiles + tileset_tile_x,
-                            flip_bits: if tile.f.x { 1 } else { 0 } | if tile.f.y { 2 } else { 0 },
+                            flip_bits: tile.f as u32,
                         },
                     );
                 }
@@ -178,8 +175,8 @@ fn process_ldtk_maps(
                 // Go through our tiles HashMap and convert it to a 1D vector of all of the tiles'
                 // information.
                 let mut tiles = Vec::new();
-                for y in 0..layer.__c_hei as u32 {
-                    for x in (0..layer.__c_wid as u32).rev() {
+                for y in 0..layer.c_hei as u32 {
+                    for x in (0..layer.c_wid as u32).rev() {
                         tiles.push(tiles_map.get(&(x, y)).map(Clone::clone).unwrap_or(
                             LdtkTilemapTileInfo {
                                 flip_bits: 0,
