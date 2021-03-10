@@ -1,6 +1,7 @@
 //! A [Bevy] plugin for loading [LDtk] tile maps.
 //!
-//! [ldtk]: https://github.com/deepnight/ldtk [bevy]: https://bevyengine.org
+//! [ldtk]: https://github.com/deepnight/ldtk
+//! [bevy]: https://bevyengine.org
 //!
 //! # Usage
 //!
