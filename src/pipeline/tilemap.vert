@@ -33,6 +33,7 @@ layout(set = 2, binding = 1) uniform LdtkTilemapLayer_map_info {
     uint map_width_tiles;
     uint map_height_tiles;
     uint layer_index;
+    uint sublayer_index;
     uint center_map;
 };
 layout(set = 2, binding = 2) uniform LdtkTilemapLayer_tileset_info {
@@ -66,7 +67,9 @@ void main() {
         Vertex_Position.x * map_width_tiles * scale_factor,
         Vertex_Position.y * map_height_tiles * scale_factor,
         // Stack each successive layer on top of the ones before it, setting it one unit higher.
-        Vertex_Position.z + float(layer_index)
+        // We also need to add a teeny tiny bit of space between sublayers to make them stack on
+        // each-other properly.
+        Vertex_Position.z + float(layer_index) + float(sublayer_index * 0.00001)
     );
 
     // If the map should not be centered, offset it so that the top-left corner of the map is

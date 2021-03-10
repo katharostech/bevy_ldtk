@@ -147,9 +147,11 @@ fn process_ldtk_maps(
                     continue;
                 };
 
-                // Create a virtual 2D map to stick the tiles in as we read the tiles and their
-                // target coordinates from the LDtk project.
-                let mut tiles_map = HashMap::<(u32, u32), LdtkTilemapTileInfo>::default();
+                // Create a vector of "sublayers", each of which has a mapping of the (x, y)
+                // coordinate of the tile to the tile information for that location. Because LDtk's
+                // auto-mapped tiles support having multiple tiles in the same cell, we may need
+                // more than one sublayer for the overlayed tiles.
+                let mut sublayers: Vec<HashMap<(u32, u32), LdtkTilemapTileInfo>> = Vec::new();
 
                 // The width of the tileset in tiles
                 let tileset_width_tiles = (tileset_info.px_wid / grid_size) as u32;
@@ -159,75 +161,120 @@ fn process_ldtk_maps(
                     // Get the x and y position of the tile in the map
                     let tileset_tile_x = (tile.src[0] / grid_size) as u32;
                     let tileset_tile_y = (tile.src[1] / grid_size) as u32;
+
                     // Add the tile and it's info to the (x, y) position in our tiles HashMap, and
-                    // overwrite whatever tile was already there, if any.
-                    // TODO: Handle automapping tiles that put multiple tiles in the same square
-                    tiles_map.insert(
-                        (
+                    // add it to the list of tiles in that square
+                    let mut sublayer_index = 0;
+
+                    // Loop until we find an open spot in a sublayer
+                    loop {
+                        // Get the tile location
+                        let location = (
                             (tile.px[0] / grid_size) as u32,
                             (tile.px[1] / grid_size) as u32,
-                        ),
-                        LdtkTilemapTileInfo {
-                            tile_index: tileset_tile_y * tileset_width_tiles + tileset_tile_x,
-                            flip_bits: if tile.f.x { 1 } else { 0 } | if tile.f.y { 2 } else { 0 },
-                        },
-                    );
-                }
+                        );
 
-                // Go through our tiles HashMap and convert it to a 1D vector of all of the tiles'
-                // information.
-                let mut tiles = Vec::new();
-                for y in 0..layer.__c_hei as u32 {
-                    for x in (0..layer.__c_wid as u32).rev() {
-                        tiles.push(tiles_map.get(&(x, y)).map(Clone::clone).unwrap_or(
-                            LdtkTilemapTileInfo {
-                                flip_bits: 0,
-                                tile_index: u32::MAX,
-                            },
-                        ))
+                        // Make sure the sub-layer exists
+                        if sublayers.get(sublayer_index).is_none() {
+                            sublayers.push(Default::default());
+                        }
+                        let sublayer = sublayers
+                            .get_mut(sublayer_index)
+                            .expect("Looping logic error");
+
+                        // If the tiles location in the sublayer is empty
+                        if sublayer.get(&location).is_none() {
+                            // Add the tile to the layer
+                            sublayer.insert(
+                                location,
+                                LdtkTilemapTileInfo {
+                                    tile_index: tileset_tile_y * tileset_width_tiles
+                                        + tileset_tile_x,
+                                    flip_bits: if tile.f.x { 1 } else { 0 }
+                                        | if tile.f.y { 2 } else { 0 },
+                                },
+                            );
+
+                            // Break out of the loop
+                            break;
+
+                        // If the tile's location is already taken
+                        } else {
+                            // Increment the sublayer index and try again
+                            sublayer_index += 1;
+                        }
                     }
                 }
 
-                // Initialize our map info
-                let map_info = LdtkTilemapMapInfo {
-                    height: (level.px_hei / map.project.default_grid_size) as u32,
-                    width: (level.px_wid / map.project.default_grid_size) as u32,
-                    layer_index: z as u32,
-                    center_map: if config.center_map { 1 } else { 0 },
-                };
+                // Go through our sublayers and convert each one to a 1D vector of all of the tiles'
+                // information.
+                let mut sublayer_tiles: Vec<Vec<LdtkTilemapTileInfo>> =
+                    vec![Default::default(); sublayers.len()];
 
-                // Initialize our tileset info
-                let tileset_info = LdtkTilemapTilesetInfo {
-                    height: (tileset_info.px_hei / map.project.default_grid_size) as u32,
-                    width: (tileset_info.px_wid / map.project.default_grid_size) as u32,
-                    grid_size: map.project.default_grid_size as u32,
-                };
+                // For every sublayer and it's corresponding 1D sublayer_tiles
+                for (sublayer_tiles, sublayer) in sublayer_tiles.iter_mut().zip(sublayers) {
+                    // Loop through all the X and Y coords
+                    for y in 0..layer.__c_hei as u32 {
+                        for x in (0..layer.__c_wid as u32).rev() {
+                            // Add a the tile to the tile list
+                            sublayer_tiles.push(
+                                sublayer
+                                    .get(&(x, y))
+                                    .map(Clone::clone)
+                                    // Or add a blank tile if one is not at these coordinates
+                                    .unwrap_or(LdtkTilemapTileInfo {
+                                        flip_bits: 0,
+                                        tile_index: u32::MAX,
+                                    }),
+                            )
+                        }
+                    }
+                }
 
-                // Spawn the layer into the world
-                let layer = commands
-                    // Use the default sprite bundle with our custom render pipeline
-                    .spawn(SpriteBundle {
-                        render_pipelines: RenderPipelines::from_pipelines(vec![
-                            RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
-                        ]),
-                        ..Default::default()
-                    })
-                    // Add our material which the shaders will use to render the map
-                    .with(LdtkTilemapLayer {
-                        map_info,
-                        scale: config.scale,
-                        texture: tileset_texture.clone(),
-                        tiles,
-                        tileset_info,
-                    })
-                    // Add the `Handle<LdtkMap>` so that we will be able to hot reload this layer if
-                    // the map changes.
-                    .with(LayerMapHandle(map_handle.clone()))
-                    .current_entity()
-                    .unwrap();
+                // For every sublayer
+                for (sublayer_index, sublayer_tiles) in sublayer_tiles.into_iter().enumerate() {
+                    // Initialize our map info
+                    let map_info = LdtkTilemapMapInfo {
+                        height: (level.px_hei / map.project.default_grid_size) as u32,
+                        width: (level.px_wid / map.project.default_grid_size) as u32,
+                        layer_index: z as u32,
+                        sublayer_index: sublayer_index as u32,
+                        center_map: if config.center_map { 1 } else { 0 },
+                    };
 
-                // Add the entity as a child of the LDtk map entity
-                commands.push_children(ent, &[layer]);
+                    // Initialize our tileset info
+                    let tileset_info = LdtkTilemapTilesetInfo {
+                        height: (tileset_info.px_hei / map.project.default_grid_size) as u32,
+                        width: (tileset_info.px_wid / map.project.default_grid_size) as u32,
+                        grid_size: map.project.default_grid_size as u32,
+                    };
+
+                    // Spawn the layer into the world
+                    let layer = commands
+                        // Use the default sprite bundle with our custom render pipeline
+                        .spawn(SpriteBundle {
+                            render_pipelines: RenderPipelines::from_pipelines(vec![
+                                RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
+                            ]),
+                            ..Default::default()
+                        })
+                        // Add our material which the shaders will use to render the map
+                        .with(LdtkTilemapLayer {
+                            map_info,
+                            scale: config.scale,
+                            texture: tileset_texture.clone(),
+                            tiles: sublayer_tiles,
+                            tileset_info,
+                        })
+                        // Add the `Handle<LdtkMap>` so that we will be able to hot reload this layer if
+                        // the map changes.
+                        .with(LayerMapHandle(map_handle.clone()))
+                        .current_entity()
+                        .unwrap();
+
+                    // Add the entity as a child of the LDtk map entity
+                    commands.push_children(ent, &[layer]);
+                }
             }
 
             // Mark the map as having been loaded so that we don't process it again

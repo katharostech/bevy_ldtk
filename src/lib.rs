@@ -1,7 +1,6 @@
 //! A [Bevy] plugin for loading [LDtk] tile maps.
 //!
-//! [ldtk]: https://github.com/deepnight/ldtk
-//! [bevy]: https://bevyengine.org
+//! [ldtk]: https://github.com/deepnight/ldtk [bevy]: https://bevyengine.org
 //!
 //! # Usage
 //!
@@ -47,9 +46,9 @@
 //! unit higher on the Z axis. To have your sprites for players, etc. appear on top of the rendered
 //! map, their Z axis translation must be higher than the map transform + the layer number that you
 //! want it to appear above.
-//! 
+//!
 //! ## LDtk Versions
-//! 
+//!
 //! | LDtk Version | Plugin Version |
 //! | ------------ | ---------------|
 //! | 0.8.1        | 0.4            |
@@ -91,11 +90,13 @@
 //!
 //! The plugin is in relatively early stages, but it is still rather functional for many basic maps
 //!
-//! - Many features are not supported yet:
-//!   - multiple overlapping autotile tiles
-//!   - tilemaps with spacing in them
+//! - Many features are not supported yet, including:
+//!   - tilesets with spacing in them
 //!   - levels in separate files
-//! - Occasionally some slight rendering artifacts between tiles. Not sure what causes those yet.
+//! - Occasionally some slight rendering artifacts between tiles. ( [#1] ) Not sure what causes
+//!   those yet. Help from anybody with rendering experience would be greatly appreciated!
+//!
+//! [#1]: https://github.com/katharostech/bevy_ldtk/issues/1
 //!
 //! If you run into anything that isn't supported that you want to use in your game open an issue or
 //! PR to help prioritize what gets implemented.

@@ -12,8 +12,7 @@ _( Tileset from ["Cavernas"] by Adam Saltsman  )_
 
 A [Bevy] plugin for loading [LDtk] tile maps.
 
-[ldtk]: https://github.com/deepnight/ldtk
-[bevy]: https://bevyengine.org
+[ldtk]: https://github.com/deepnight/ldtk [bevy]: https://bevyengine.org
 
 ## Usage
 
@@ -103,11 +102,13 @@ not compile when using the `bevy-unstable` feature.
 
 The plugin is in relatively early stages, but it is still rather functional for many basic maps
 
-- Many features are not supported yet:
-  - multiple overlapping autotile tiles
-  - tilemaps with spacing in them
+- Many features are not supported yet, including:
+  - tilesets with spacing in them
   - levels in separate files
-- Occasionally some slight rendering artifacts between tiles. Not sure what causes those yet.
+- Occasionally some slight rendering artifacts between tiles. ( [#1] ) Not sure what causes
+  those yet. Help from anybody with rendering experience would be greatly appreciated!
+
+[#1]: https://github.com/katharostech/bevy_ldtk/issues/1
 
 If you run into anything that isn't supported that you want to use in your game open an issue or
 PR to help prioritize what gets implemented.

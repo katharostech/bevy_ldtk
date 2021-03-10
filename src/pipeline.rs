@@ -156,6 +156,8 @@ pub struct LdtkTilemapMapInfo {
     pub height: u32,
     /// The layer number for this map layer, counted starting at 0, with 0 being the lowest layer
     pub layer_index: u32,
+    /// The index of this sublayer, counted starting at 0, with 0 being the lowest sublayer
+    pub sublayer_index: u32,
     /// Whether or not to center the map around the origin ( Using the `u32` type because bools
     /// don't seem to work right for some reason. `0` means `false` and `1` means `true` )
     pub center_map: u32,
