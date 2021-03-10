@@ -56,10 +56,10 @@
 //!
 //! ## Bevy Versions
 //!
-//! | Bevy Version | Plugin Version                                     |
-//! | ------------ | -------------------------------------------------- |
-//! | 0.4          | 0.2, 0.3                                           |
-//! | master       | 0.3 with the `bevy-unstable` feature ( see below ) |
+//! | Bevy Version | Plugin Version                                      |
+//! | ------------ | --------------------------------------------------- |
+//! | 0.4          | 0.2, 0.3, 0.4                                       |
+//! | master       | 0.3+ with the `bevy-unstable` feature ( see below ) |
 //!
 //! ### Using Bevy From Master
 //!
@@ -71,7 +71,7 @@
 //! # Bevy version must be set to "0.4" and we will
 //! # override it in the patch below.
 //! bevy = "0.4"
-//! bevy_ldtk = { version = "0.3", features = ["bevy-unstable"] }
+//! bevy_ldtk = { version = "0.4", features = ["bevy-unstable"] }
 //!
 //! [patch.crates-io]
 //! bevy = { git = "https://github.com/bevyengine/bevy.git" }
