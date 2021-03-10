@@ -60,6 +60,13 @@ unit higher on the Z axis. To have your sprites for players, etc. appear on top 
 map, their Z axis translation must be higher than the map transform + the layer number that you
 want it to appear above.
 
+### LDtk Versions
+
+| LDtk Version | Plugin Version |
+| ------------ | ---------------|
+| 0.8.1        | 0.4            |
+| 0.7.0        | 0.2, 0.3       |
+
 ### Bevy Versions
 
 | Bevy Version | Plugin Version                                     |

@@ -91,9 +91,8 @@ fn process_ldtk_maps(
                 // Get the tileset info
                 let tileset_info = project
                     .defs
+                    .tilesets
                     .iter()
-                    .map(|x| &x.tilesets)
-                    .flatten()
                     .filter(|x| &x.identifier == tileset_name)
                     .next()
                     .expect("Could not find tilset inside of map data");
