@@ -24,7 +24,7 @@ pub(crate) fn add_assets(app: &mut AppBuilder) {
 /// An error that occurs when loading a GLTF file
 #[derive(thiserror::Error, Debug)]
 pub enum LdtkMapLoaderError {
-    #[error("Could not parese LDtk map file")]
+    #[error("Could not parese LDtk map file: {0}")]
     ParsingError(#[from] serde_json::Error),
 }
 
