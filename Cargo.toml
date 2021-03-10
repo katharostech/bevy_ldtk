@@ -1,6 +1,6 @@
 [package]
 name = "bevy_ldtk"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Zicklag <zicklag@katharostech.com>"]
 edition = "2018"
 license-file = "LICENSE.md"
