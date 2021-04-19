@@ -12,13 +12,14 @@ fn main() {
         .run();
 }
 
-fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Enable hot reload
     asset_server.watch_for_changes().unwrap();
 
     commands
         // Spawn the map
-        .spawn(LdtkMapBundle {
+        .spawn()
+        .insert_bundle(LdtkMapBundle {
             map: asset_server.load(PathBuf::from(
                 &std::env::args().nth(1).unwrap_or("map1.ldtk".into()),
             )),
@@ -35,10 +36,9 @@ fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
         });
 
     // And the camera
-    #[cfg(not(feature = "bevy-unstable"))]
-    commands.spawn(Camera2dBundle::default());
-    #[cfg(feature = "bevy-unstable")]
-    commands.spawn(OrthographicCameraBundle::new_2d());
+    commands
+        .spawn()
+        .insert_bundle(OrthographicCameraBundle::new_2d());
 }
 
 const SPEED: f32 = 1.0;
@@ -49,7 +49,7 @@ fn camera_movement(
     mut query: Query<(&Camera, &mut Transform)>,
 ) {
     for (_, mut transform) in query.iter_mut() {
-        let mut direction = Vec3::zero();
+        let mut direction = Vec3::ZERO;
         let scale = transform.scale.x;
 
         if keyboard_input.pressed(KeyCode::A) {
