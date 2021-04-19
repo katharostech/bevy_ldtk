@@ -9,8 +9,8 @@ use crate::*;
 /// Add the Ldtk map systems to the app builder
 pub(crate) fn add_systems(app: &mut AppBuilder) {
     app.add_system(process_ldtk_maps.system())
-        .add_system(process_ldtk_tilesets.system())
-        .add_system(hot_reload_maps.system());
+       .add_system(process_ldtk_tilesets.system())
+       .add_system(hot_reload_maps.system());
 }
 
 #[derive(Default)]
@@ -24,7 +24,7 @@ struct TilesetsLoaded;
 /// A system that watches for loaded LDTK map assets and updates the texture filtering mode to
 /// prevent lines between the tiles.
 fn process_ldtk_tilesets(
-    commands: &mut Commands,
+    mut commands: Commands,
     query: Query<(Entity, &Handle<LdtkMap>), Without<TilesetsLoaded>>,
     mut textures: ResMut<Assets<Texture>>,
     ldtk_maps: Res<Assets<LdtkMap>>,
@@ -57,7 +57,7 @@ fn process_ldtk_tilesets(
             // If all of the textures have loaded, add the `TilesetsLoaded` component so that
             // we don't process this map again
             if loaded == map.tile_sets.len() {
-                commands.insert_one(map_ent, TilesetsLoaded);
+                commands.entity(map_ent).insert(TilesetsLoaded);
             }
         }
     }
@@ -71,7 +71,7 @@ struct LayerMapHandle(Handle<LdtkMap>);
 
 /// This system spawns the map layers for every unloaded entity with an LDtk map
 fn process_ldtk_maps(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut clear_color: ResMut<ClearColor>,
     mut new_maps: Query<(Entity, &Handle<LdtkMap>, &LdtkMapConfig), Without<LdtkMapHasLoaded>>,
     map_assets: Res<Assets<LdtkMap>>,
@@ -252,14 +252,14 @@ fn process_ldtk_maps(
                     // Spawn the layer into the world
                     let layer = commands
                         // Use the default sprite bundle with our custom render pipeline
-                        .spawn(SpriteBundle {
+                        .spawn_bundle(SpriteBundle {
                             render_pipelines: RenderPipelines::from_pipelines(vec![
                                 RenderPipeline::new(LDTK_TILEMAP_PIPELINE_HANDLE.typed()),
                             ]),
                             ..Default::default()
                         })
                         // Add our material which the shaders will use to render the map
-                        .with(LdtkTilemapLayer {
+                        .insert(LdtkTilemapLayer {
                             map_info,
                             scale: config.scale,
                             texture: tileset_texture.clone(),
@@ -268,17 +268,18 @@ fn process_ldtk_maps(
                         })
                         // Add the `Handle<LdtkMap>` so that we will be able to hot reload this layer if
                         // the map changes.
-                        .with(LayerMapHandle(map_handle.clone()))
-                        .current_entity()
-                        .unwrap();
+                        .insert(LayerMapHandle(map_handle.clone()))
+                        .id();
 
                     // Add the entity as a child of the LDtk map entity
-                    commands.push_children(ent, &[layer]);
+                    //commands.push_children(ent, &[layer]);
+                    commands.entity(ent).push_children(&[layer]);
                 }
             }
 
             // Mark the map as having been loaded so that we don't process it again
-            commands.insert_one(ent, LdtkMapHasLoaded);
+            //commands.insert_one(ent, LdtkMapHasLoaded);
+            commands.entity(ent).insert(LdtkMapHasLoaded);
         }
     }
 }
@@ -288,13 +289,8 @@ type MapEvent = AssetEvent<LdtkMap>;
 /// This system watches for changes to map assets and makes sure that the map is reloaded upon
 /// changes.
 fn hot_reload_maps(
-    commands: &mut Commands,
-    // The event reader strategy is slightly different for Bevy 0.4 and the upcomming Bevy, so
-    // we have to match on the feature to make sure we can support both. This should go away once Bevy
-    // 0.5 is released.
-    #[cfg(not(feature = "bevy-unstable"))] mut event_reader: Local<EventReader<MapEvent>>,
-    #[cfg(not(feature = "bevy-unstable"))] events: Res<Events<MapEvent>>,
-    #[cfg(feature = "bevy-unstable")] mut events: EventReader<MapEvent>,
+    mut commands: Commands,
+    mut event_reader: EventReader<MapEvent>,
     layers: Query<(Entity, &LayerMapHandle)>,
     maps: Query<(Entity, &Handle<LdtkMap>), With<LdtkMapConfig>>,
 ) {
@@ -307,7 +303,7 @@ fn hot_reload_maps(
                     // Loop through all the layers in the world, find the ones that are for this map and remove them
                     for (layer_ent, LayerMapHandle(map_handle)) in layers.iter() {
                         if map_handle == handle {
-                            commands.despawn(layer_ent);
+                            commands.entity(layer_ent).despawn();
                         }
                     }
 
@@ -315,7 +311,8 @@ fn hot_reload_maps(
                     // reloaded by the `process_ldtk_maps` system.
                     for (map_ent, map_handle) in maps.iter() {
                         if map_handle == handle {
-                            commands.remove_one::<LdtkMapHasLoaded>(map_ent);
+                            commands.entity(map_ent).remove::<LdtkMapHasLoaded>();
+                            //commands.remove_one::<LdtkMapHasLoaded>(map_ent);
                         }
                     }
                 }
@@ -324,14 +321,7 @@ fn hot_reload_maps(
         }
     }
 
-    // Here we have to iterate over the events slightly differently for Bevy 0.4 and 0.6
-    #[cfg(not(feature = "bevy-unstable"))]
-    for event in event_reader.iter(&events) {
-        handle_map_event!(event);
-    }
-
-    #[cfg(feature = "bevy-unstable")]
-    for event in events.iter() {
+    for event in event_reader.iter() {
         handle_map_event!(event);
     }
 }

@@ -25,55 +25,6 @@ fn build_ldtk_tilemap_pipeline(shaders: &mut Assets<Shader>) -> PipelineDescript
         texture::*,
     };
 
-    #[cfg(not(feature = "bevy-unstable"))]
-    return PipelineDescriptor {
-        rasterization_state: Some(RasterizationStateDescriptor {
-            front_face: FrontFace::Ccw,
-            cull_mode: CullMode::Back,
-            depth_bias: 0,
-            depth_bias_slope_scale: 0.0,
-            depth_bias_clamp: 0.0,
-            clamp_depth: false,
-        }),
-        depth_stencil_state: Some(DepthStencilStateDescriptor {
-            format: TextureFormat::Depth32Float,
-            depth_write_enabled: true,
-            depth_compare: CompareFunction::LessEqual,
-            stencil: StencilStateDescriptor {
-                front: StencilStateFaceDescriptor::IGNORE,
-                back: StencilStateFaceDescriptor::IGNORE,
-                read_mask: 0,
-                write_mask: 0,
-            },
-        }),
-        color_states: vec![ColorStateDescriptor {
-            format: TextureFormat::default(),
-            color_blend: BlendDescriptor {
-                src_factor: BlendFactor::SrcAlpha,
-                dst_factor: BlendFactor::OneMinusSrcAlpha,
-                operation: BlendOperation::Add,
-            },
-            alpha_blend: BlendDescriptor {
-                src_factor: BlendFactor::One,
-                dst_factor: BlendFactor::One,
-                operation: BlendOperation::Add,
-            },
-            write_mask: ColorWrite::ALL,
-        }],
-        sample_count: 0,
-        ..PipelineDescriptor::new(ShaderStages {
-            vertex: shaders.add(Shader::from_glsl(
-                ShaderStage::Vertex,
-                include_str!("pipeline/tilemap.vert"),
-            )),
-            fragment: Some(shaders.add(Shader::from_glsl(
-                ShaderStage::Fragment,
-                include_str!("pipeline/tilemap.frag"),
-            ))),
-        })
-    };
-
-    #[cfg(feature = "bevy-unstable")]
     return PipelineDescriptor {
         depth_stencil: Some(DepthStencilState {
             format: TextureFormat::Depth32Float,
@@ -199,12 +150,17 @@ pub mod node {
 }
 
 /// Configure the render pipeline for LDtk maps
-pub(crate) fn configure_pipeline(app: &AppBuilder) {
+pub(crate) fn configure_pipeline(app: &mut AppBuilder) {
     // Get the app resources
-    let resources = app.resources();
-    let mut pipelines = resources.get_mut::<Assets<PipelineDescriptor>>().unwrap();
-    let mut shaders = resources.get_mut::<Assets<Shader>>().unwrap();
-    let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
+    //let resources = app.resources();
+    // let mut pipelines = resources.get_mut::<Assets<PipelineDescriptor>>().unwrap();
+    // let mut shaders = resources.get_mut::<Assets<Shader>>().unwrap();
+    // let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
+
+    let world_cell = app.world_mut().cell();
+    let mut pipelines = world_cell.get_resource_mut::<Assets<PipelineDescriptor>>().unwrap();
+    let mut shaders = world_cell.get_resource_mut::<Assets<Shader>>().unwrap();
+    let mut render_graph = world_cell.get_resource_mut::<RenderGraph>().unwrap();
 
     // Add our pipeline asset using the handle we created above. This will allow us to access our
     // pipeline when spawning our tilemap layers using the handle.
