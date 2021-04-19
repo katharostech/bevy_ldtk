@@ -9,7 +9,7 @@
 		"url": "https://ldtk.io"
 	},
 	"jsonVersion": "0.8.1",
-	"nextUid": 112,
+	"nextUid": 114,
 	"worldLayout": "Free",
 	"worldGridWidth": 128,
 	"worldGridHeight": 128,
@@ -29,6 +29,25 @@
 	"backupLimit": 10,
 	"flags": [],
 	"defs": { "layers": [
+		{
+			"__type": "Entities",
+			"identifier": "Entities",
+			"type": "Entities",
+			"uid": 113,
+			"gridSize": 8,
+			"displayOpacity": 1,
+			"pxOffsetX": 0,
+			"pxOffsetY": 0,
+			"requiredTags": [],
+			"excludedTags": [],
+			"intGridValues": [{ "value": 1, "identifier": null, "color": "#000000" }],
+			"autoTilesetDefUid": null,
+			"autoRuleGroups": [],
+			"autoSourceLayerDefUid": null,
+			"tilesetDefUid": null,
+			"tilePivotX": 0,
+			"tilePivotY": 0
+		},
 		{
 			"__type": "IntGrid",
 			"identifier": "IntGrid_layer",
@@ -388,6 +407,31 @@
 					"textLangageMode": null
 				}
 			]
+		},
+		{
+			"identifier": "Player_Spawn",
+			"uid": 112,
+			"tags": [],
+			"width": 8,
+			"height": 8,
+			"resizableX": false,
+			"resizableY": false,
+			"keepAspectRatio": false,
+			"fillOpacity": 1,
+			"lineOpacity": 1,
+			"hollow": false,
+			"color": "#FF0000",
+			"renderMode": "Cross",
+			"showName": true,
+			"tilesetId": null,
+			"tileId": null,
+			"tileRenderMode": "Stretch",
+			"maxCount": 0,
+			"limitScope": "PerLevel",
+			"limitBehavior": "MoveLastOne",
+			"pivotX": 0.5,
+			"pivotY": 0.5,
+			"fieldDefs": []
 		}
 	], "tilesets": [
 		{
@@ -446,6 +490,42 @@
 			"externalRelPath": null,
 			"fieldInstances": [],
 			"layerInstances": [
+				{
+					"__identifier": "Entities",
+					"__type": "Entities",
+					"__cWid": 45,
+					"__cHei": 26,
+					"__gridSize": 8,
+					"__opacity": 1,
+					"__pxTotalOffsetX": 0,
+					"__pxTotalOffsetY": 0,
+					"__tilesetDefUid": null,
+					"__tilesetRelPath": null,
+					"levelId": 70,
+					"layerDefUid": 113,
+					"pxOffsetX": 0,
+					"pxOffsetY": 0,
+					"visible": true,
+					"intGrid": [],
+					"intGridCsv": [],
+					"autoLayerTiles": [],
+					"seed": 1968775,
+					"overrideTilesetUid": null,
+					"gridTiles": [],
+					"entityInstances": [
+						{
+							"__identifier": "Player_Spawn",
+							"__grid": [30,21],
+							"__pivot": [0.5,0.5],
+							"__tile": null,
+							"width": 8,
+							"height": 8,
+							"defUid": 112,
+							"px": [241,170],
+							"fieldInstances": []
+						}
+					]
+				},
 				{
 					"__identifier": "IntGrid_layer",
 					"__type": "IntGrid",

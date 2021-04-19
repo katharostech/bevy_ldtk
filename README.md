@@ -13,7 +13,22 @@ _( Tileset from ["Cavernas"] by Adam Saltsman  )_
 A [Bevy] plugin for loading [LDtk] tile maps.
 
 [ldtk]: https://github.com/deepnight/ldtk
+
 [bevy]: https://bevyengine.org
+
+> **🚧 Maintenance Note:** Development of this library by us at @katharostech will be limited to
+> small fixes as we have internally switched to using [Bevy Retro][bevy_retro] and it's LDtk map
+> loader. Still, community pull requests for features or fixes are appreciated!
+
+[bevy_retro]: https://github.com/katharostech/bevy_retro
+
+## License
+
+Bevy LDtk is licensed under the [Katharos License][k_license] which places certain restrictions
+on what you are allowed to use it for. Please read and understand the terms before using Bevy
+LDtk for your project.
+
+[k_license]: https://github.com/katharostech/katharos-license
 
 ## Usage
 
@@ -29,29 +44,34 @@ fn main() {
         .run();
 }
 
-fn setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // Enable hot reload
+    asset_server.watch_for_changes().unwrap();
+
     commands
-        // Spawn a camera
-        .spawn(Camera2dBundle::default())
-        // Spawn a map bundle
-        .spawn(LdtkMapBundle {
-            // Specify the path to the map asset to load
+        // Spawn the map
+        .spawn()
+        .insert_bundle(LdtkMapBundle {
             map: asset_server.load("map1.ldtk"),
             config: LdtkMapConfig {
-                // Automatically set the clear color to the LDtk background color
                 set_clear_color: true,
-                // You can specify a scale or leave it set to 1 for 1 to 1 pixel size
-                scale: 3.0,
-                // Set which level to load out of the map or leave it to 0 for the default level
-                level: 0,
-                // Tell the map to center around it's `Transform` instead of putting the top-left
-                // corner of the map at the origin `Transform`.
-                center_map: true,
+                scale: 1.0,
+                level: std::env::args()
+                    .nth(2)
+                    .map(|x| x.parse().unwrap())
+                    .unwrap_or(0),
+                center_map: false,
             },
             ..Default::default()
         });
+
+    // And the camera
+    commands
+        .spawn()
+        .insert_bundle(OrthographicCameraBundle::new_2d());
 }
 ```
+
 ### Layers
 
 When the map layers are spawned, the bottommost layer is spawned at the transform coordinate of
@@ -64,7 +84,7 @@ want it to appear above.
 
 | LDtk Version | Plugin Version |
 | ------------ | ---------------|
-| 0.8.1        | 0.4            |
+| 0.8.1        | 0.4, 0.5       |
 | 0.7.0        | 0.2, 0.3       |
 
 ### Bevy Versions
@@ -72,26 +92,8 @@ want it to appear above.
 | Bevy Version | Plugin Version                                      |
 | ------------ | --------------------------------------------------- |
 | 0.4          | 0.2, 0.3, 0.4                                       |
-| master       | 0.3+ with the `bevy-unstable` feature ( see below ) |
-
-#### Using Bevy From Master
-
-You can use this crate with Bevy master by adding a patch to your `Cargo.toml` and by adding the
-`bevy-unstable` feature to this crate:
-
-```toml
-[dependencies]
-# Bevy version must be set to "0.4" and we will
-# override it in the patch below.
-bevy = "0.4"
-bevy_ldtk = { version = "0.4", features = ["bevy-unstable"] }
-
-[patch.crates-io]
-bevy = { git = "https://github.com/bevyengine/bevy.git" }
-```
-
-Note that as Bevy master may or may not introduce breaking API changes, this crate may or may
-not compile when using the `bevy-unstable` feature.
+| 0.5          | 0.5                                                 |
+| master       | not officially supported, but it might work         |
 
 ## Features
 
@@ -109,15 +111,76 @@ The plugin is in relatively early stages, but it is still rather functional for 
 - Occasionally some slight rendering artifacts between tiles. ( [#1] ) Not sure what causes
   those yet. Help from anybody with rendering experience would be greatly appreciated!
 
+### Extracting Map Information
+
+You can extract any information necessary for your game from the LDtk JSON map data. Here is an example showing how you could spawn a player.
+
+```rust
+fn spawn_player(
+    mut commands: Commands,
+    printed_maps: Local<Vec<Entity>>,
+    query: Query<(Entity, &Handle<LdtkMap>)>,
+    map_assets: Res<Assets<LdtkMap>>,
+    asset_server: Res<AssetServer>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+) {
+    for (ent, handle) in query.iter() {
+        // Skip any maps we have already printed the spawn location for
+        if printed_maps.contains(&ent) {
+            continue;
+        }
+
+        // If the map asset has finished loading
+        if let Some(map) = map_assets.get(handle) {
+            // This is the default level, but if you spawned a different level, put that ID here
+            let level_idx = 0;
+
+            // Get the level from the project
+            let level = &map.project.levels[level_idx];
+
+            // Find the entities layer
+            let entities_layer = level
+                .layer_instances
+                .as_ref() // get a reference to the layer instances
+                .unwrap() // Unwrap the option ( this could be None, if there are no layers )
+                .iter() // Iterate over the layers
+                .filter(|&x| x.__identifier == "Entities") // Filter on the name of the layer
+                .next() // Get it
+                .unwrap(); // Unwrap it ( would be None if it could not find a layer "MyEntities" )
+
+            // Get the specific entity you want
+            let player_start = entities_layer
+                .entity_instances
+                .iter() // Iterate over our entities in the layer
+                .filter(|x| x.__identifier == "Player_Spawn") // Find the one we want
+                .next() // Get it
+                .unwrap(); // Unwrap it
+
+            // Get the number of layers in the map and add one to it: this is how high we need to
+            // spawn the player so that he is on top of all the maps
+            let player_z = level.layer_instances.as_ref().unwrap().len() as f32 + 1.0;
+
+            // Spawn the entity!
+            commands.spawn().insert_bundle(SpriteBundle {
+                // Set your sprite stuff
+                transform: Transform::from_xyz(
+                    // The player x position is the entity's x position from the map data
+                    player_start.px[0] as f32,
+                    // The player y position is the entity's y position from the map data, but
+                    // multiplied by negative one because in the LDtk map +y means down and not up.
+                    player_start.px[1] as f32 * -1.0,
+                    // Spawn the player with the z value we determined earlier
+                    player_z,
+                ),
+                material: color_materials.add(ColorMaterial {
+                    texture: Some(asset_server.load("character.png")),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            });
+        }
+    }
+}
+```
+
 [#1]: https://github.com/katharostech/bevy_ldtk/issues/1
-
-If you run into anything that isn't supported that you want to use in your game open an issue or
-PR to help prioritize what gets implemented.
-
-## License
-
-Bevy LDtk is licensed under the [Katharos License][k_license] which places certain restrictions
-on what you are allowed to use it for. Please read and understand the terms before using Bevy
-LDtk for your project.
-
-[k_license]: https://github.com/katharostech/katharos-license
