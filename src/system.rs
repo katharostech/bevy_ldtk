@@ -272,13 +272,11 @@ fn process_ldtk_maps(
                         .id();
 
                     // Add the entity as a child of the LDtk map entity
-                    //commands.push_children(ent, &[layer]);
                     commands.entity(ent).push_children(&[layer]);
                 }
             }
 
             // Mark the map as having been loaded so that we don't process it again
-            //commands.insert_one(ent, LdtkMapHasLoaded);
             commands.entity(ent).insert(LdtkMapHasLoaded);
         }
     }
@@ -312,7 +310,6 @@ fn hot_reload_maps(
                     for (map_ent, map_handle) in maps.iter() {
                         if map_handle == handle {
                             commands.entity(map_ent).remove::<LdtkMapHasLoaded>();
-                            //commands.remove_one::<LdtkMapHasLoaded>(map_ent);
                         }
                     }
                 }

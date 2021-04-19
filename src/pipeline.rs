@@ -152,11 +152,6 @@ pub mod node {
 /// Configure the render pipeline for LDtk maps
 pub(crate) fn configure_pipeline(app: &mut AppBuilder) {
     // Get the app resources
-    //let resources = app.resources();
-    // let mut pipelines = resources.get_mut::<Assets<PipelineDescriptor>>().unwrap();
-    // let mut shaders = resources.get_mut::<Assets<Shader>>().unwrap();
-    // let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
-
     let world_cell = app.world_mut().cell();
     let mut pipelines = world_cell.get_resource_mut::<Assets<PipelineDescriptor>>().unwrap();
     let mut shaders = world_cell.get_resource_mut::<Assets<Shader>>().unwrap();
