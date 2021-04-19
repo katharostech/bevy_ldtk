@@ -17,16 +17,13 @@ categories = [
 
 [features]
 default = []
-# Feature flag for attempting to support the latest Bevy from Git
-bevy-unstable = []
 
 [dependencies]
-bevy = "0.5"
+bevy = { version = "0.5", features = ["render"], default-features = false }
 ldtk = "0.3"
 anyhow = "1.0.37"
 serde_json = "1.0.61"
 thiserror = "1.0.23"
 
-# Uncomment the below patch and enable the `bevy-unstable` feature to run on the latest unreleased Bevy
-# [patch.crates-io]
-# bevy = { git = "https://github.com/bevyengine/bevy.git" }
+[dev-dependencies]
+bevy = { version = "0.5", default-features = true }
