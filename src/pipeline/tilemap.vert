@@ -14,7 +14,7 @@ layout(location = 1) in vec3 Vertex_Normal;
 layout(location = 2) in vec2 Vertex_Uv;
 
 // ### World Uniforms
-layout(set = 0, binding = 0) uniform Camera {
+layout(set = 0, binding = 0) uniform CameraViewProj {
     mat4 ViewProj;
 };
 layout(set = 1, binding = 0) uniform Transform {
