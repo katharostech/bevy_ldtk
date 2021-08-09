@@ -18,7 +18,7 @@ A [Bevy] plugin for loading [LDtk] tile maps.
 
 > **🚧 Maintenance Note:** This library has been merged into [Bevy Retrograde][bevy_retro]. With Bevy Retrograde [migrating] to Bevy's renderer, the plugin will be usable with out-of-the-box Bevy and will not require using with the rest of Bevy Retrograde if all you want is map loading. Updates will now be made in the Bevy Retrograde repository instead of here.
 > 
-> The next release of Bevy LDtk that is compatible with Bevy's renderer should be released after Bevy 0.6 is released.
+> The next published release of Bevy LDtk that is compatible with Bevy's renderer should be made after Bevy 0.6 comes out.
 
 [migrating]: https://github.com/katharostech/bevy_retrograde/issues/41
 [bevy_retro]: https://github.com/katharostech/bevy_retrograde
